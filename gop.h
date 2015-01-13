@@ -4,39 +4,48 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <string.h>
 #include <time.h>
-
+//#include <unistd.h> //for sleep
 //structs
+
+
+struct N_List
+{
+   unsigned long index;
+   double distance;
+};
 
 typedef struct NODE
 {
    double x;
    double y;
-   double percentage;
-   unsigned long rx;
-   unsigned long tx;
-   double range;
-   struct NODE *neighbor_list;
+   char rx;
+   char tx;
 
 }Node;
 
 
 //functions
 void generateNodes( void );
+void makeNeighborList(void);
+void Make2dInRangeFree(struct N_List**);
 
-Node **make2dNeighborList(void);
-
+struct N_List **make2dNeighborList(void);
+int compareFunction(const void*, const void*);
+double findDistance(Node*, Node*);
 
 //defines
-#define SIZE_OF_NODES 10000000
-
+#define _TX_PROBAILITY_PERCENTAGE_ 0.7
+#define _NO_TX_PROBAILITY_PERCENTAGE_ 1.0 - _TX_PROBAILITY_PERCENTAGE_
 
 //globals
+const unsigned long NUMBER_OF_NODES = 200;
 Node *list_node_g;
-Node **list_neighbor_g;
-const double TX_PROBAILITY_PERCENTAGE = 0.7;
+struct N_List **list_neighbor_g;
+const double TX_PROBAILITY_PERCENTAGE = _TX_PROBAILITY_PERCENTAGE_;
+const double NO_TX_PROBAILITY_PERCENTAGE = _NO_TX_PROBAILITY_PERCENTAGE_;
 const double X_MAX = 25;
 const double Y_MAX = 25;
+const double MAX_RANGE = 5;
 
 #endif

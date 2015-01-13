@@ -23,7 +23,7 @@ void generateNodes( void )
    //scale the random number to 0-1
    random_num /= RANDOM_NUMBER_MAX_D;
    
-   for (index = 0; index < SIZE_OF_NODES; index++, list_node++)
+   for (index = 0; index < NUMBER_OF_NODES; index++, list_node++)
    {
    
       //Find a random number
@@ -48,53 +48,152 @@ void generateNodes( void )
    
 }
 
+int compareFunction(const void *v_node_1, const void *v_node_2)
+{
+   
+   //vars
+   struct N_List *node_1 = (struct N_List*) v_node_1;
+   struct N_List *node_2 = (struct N_List*) v_node_2;
+
+   if(node_1->distance < node_2->distance)
+      return -1;
+   else if (node_1->distance > node_2->distance)
+      return 1;
+   else
+      return 0;
+}
+
+
+void makeNeighborList( void )
+{
+
+   //vars
+   unsigned long index, position = 0;
+   struct N_List *list_neighbor = *list_neighbor_g;
+   struct N_List *start = list_neighbor;
+   Node *node = list_node_g;
+   Node *list_node = list_node_g;
+
+   for (index = 0; index < NUMBER_OF_NODES; index++, list_neighbor++)
+   {
+      if (position == index)
+      {
+         list_neighbor->distance = -1;
+         list_neighbor->index = index;
+
+      }
+      else
+      {
+         list_neighbor->index = 5;
+         list_neighbor->distance = findDistance(node,list_node);
+      }
+      list_node++;
+   }
+
+   list_neighbor--;
+
+   qsort(start, NUMBER_OF_NODES, sizeof(struct N_List), compareFunction);
+   
+
+   for (index = 0; index < NUMBER_OF_NODES; index++,start++)
+   {
+      printf("%lu     %lf\n", index, start->distance);
+   }
+
+}
+
+double findDistance(Node *node1, Node *node2)
+{
+
+   //vars
+   //find the differance of the distance
+   double dist1 = node1->x - node2->x;
+   double dist2 = node1->y - node2->y;
+
+   //square the distance
+   dist1 *= dist1;
+   dist2 *= dist2;
+
+   //find the sum of the distance
+   dist1 += dist2;
+
+   //find the sqrt of the distance
+   return sqrt(dist1);
+
+}
+
 /**
 * Allocate memory in the heap for the hist array which is a 2d array
 * @return double** to the array of unsigned ints
 */
-Node **make2dNeighborList( void )
+struct N_List **make2dNeighborList( void )
 {
    //varaibles
    unsigned long i;
-   Node **inrange;
-   Node **p2;
+   struct N_List **inrange;
+   
+   inrange = (struct N_List**) malloc(NUMBER_OF_NODES * sizeof(struct N_List**));
+   
+   if (inrange == NULL)
+      exit(-1);  
+   
 
-   inrange = (Node**) malloc(SIZE_OF_NODES * sizeof(Node*));
-   p2 = inrange;
-
-   for(i = 0; i < SIZE_OF_NODES; i++,p2++)
+   for(i = 0; i < NUMBER_OF_NODES; i++)
    {
-      *p2 = (Node*) calloc(SIZE_OF_NODES, sizeof(Node));
+      inrange[i] = (struct N_List*) calloc(NUMBER_OF_NODES, sizeof(struct N_List*));
+      if (inrange[i] == NULL)
+         exit(-1);
    }
 
-   p2 = NULL;
    return inrange;
 
 }
 
+/**
+* Deallocate the memory used in the hist array.
+* @param double** pointer to the hist array
+*/
+void Make2dInRangeFree(struct N_List **p)
+{
 
+   //varaibles
+   unsigned long i;
+   
+   for (i = 0; i >= NUMBER_OF_NODES ; i--)
+   {
+      free(p[i]);
+   }
+
+}
 
 int main ( void )
 {
    
    //vars
-   Node *list_node = (Node*) calloc(SIZE_OF_NODES, sizeof(Node));
-   Node **list_neighbor = make2dNeighborList();
+   Node *list_node = (Node*) calloc(NUMBER_OF_NODES, sizeof(Node));
 
+   if(list_node == NULL)
+      exit(-1);
+
+   struct N_List **list_neighbor = make2dNeighborList();
+   
    //set the globals up
    list_node_g = list_node;
-   list_neighbor_g = list_neighbor;
-
+   
    //Make the node list
    generateNodes();
-   
 
+   //set the global pointer up for the neighbor list
+   list_neighbor_g = list_neighbor;
+
+   makeNeighborList();
 
    list_node_g = NULL;
    list_neighbor_g = NULL;
-
+   
+   Make2dInRangeFree(list_neighbor);
+ 
    free(list_node);
-   free(list_neighbor);
 
    return 0;
 }
