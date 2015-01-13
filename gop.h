@@ -39,7 +39,7 @@ double findDistance(Node*, Node*);
 #define _NO_TX_PROBAILITY_PERCENTAGE_ 1.0 - _TX_PROBAILITY_PERCENTAGE_
 
 //globals
-const unsigned long NUMBER_OF_NODES = 200;
+const unsigned long NUMBER_OF_NODES = 1000;
 Node *list_node_g;
 struct N_List **list_neighbor_g;
 const double TX_PROBAILITY_PERCENTAGE = _TX_PROBAILITY_PERCENTAGE_;
@@ -47,5 +47,6 @@ const double NO_TX_PROBAILITY_PERCENTAGE = _NO_TX_PROBAILITY_PERCENTAGE_;
 const double X_MAX = 25;
 const double Y_MAX = 25;
 const double MAX_RANGE = 5;
+unsigned int k_hops = 4;
 
 #endif

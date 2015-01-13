@@ -105,13 +105,14 @@ void makeNeighborList( void )
       list_neighbor--;
 
       qsort(start, NUMBER_OF_NODES, sizeof(struct N_List), compareFunction);
-   
-      //for (index = 0; index < NUMBER_OF_NODES; index++,start++)
-      //{
-      //   printf("%lu     %lf\n", index, start->distance);
-      //}
-      //printf("%lu %lu\n\n", index_outer, index_inner);
-      //puts("");
+#ifdef __DEBUG__
+      for (index = 0; index < NUMBER_OF_NODES; index++,start++)
+      {
+         printf("%lu     %lf\n", index, start->distance);
+      }
+      printf("outer inter == %lu %lu\n\n", index_outer, index_inner);
+      puts("");
+#endif      
    }
 }
 
@@ -199,9 +200,11 @@ int main ( void )
    //set the global pointer up for the neighbor list
    list_neighbor_g = list_neighbor;
 
+   //makes the neighbor list for each node
    makeNeighborList();
 
- //  printf("\nHello I am here\n");
+
+/////Nothing below this line./////////////////////////////////////////////////
 
    list_node_g = NULL;
    list_neighbor_g = NULL;
