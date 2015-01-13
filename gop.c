@@ -48,6 +48,58 @@ void generateNodes( void )
    
 }
 
+Node **push(Node **node, Node *new_node)
+{
+
+   //vars
+   Node **output = node;
+   
+   //check to ensure that the stack has room for another plate
+   if (stack_index > STACK_SIZE)
+   {
+      puts("Stack will overflow since the stack is full.");
+      exit(-1);
+   }
+
+   //increase the stack pointer by one
+   output++;
+   
+   //give the stack pointer a new value
+   *output = new_node;
+
+   //increase the number of plates on the stack
+   stack_index++;
+
+   return output;
+
+}
+
+Node** pop(Node **node)
+{
+   
+   //check to ensure that the stack has something on it
+   if (stack_index)
+   {  
+      puts("tried to pop when the stack is empty.");
+      exit(-1);
+   }
+
+   //decrease the number of items on the stack by one   
+   stack_index--;
+
+   //return the new top of the stack
+   return --node;
+
+}
+
+void transmitMsg()
+{
+
+   //vars
+   
+
+}
+
 int compareFunction(const void *v_node_1, const void *v_node_2)
 {
    
@@ -77,17 +129,24 @@ void makeNeighborList( void )
    for (index_outer = 0; index_outer < NUMBER_OF_NODES-1; \
       index_outer++, position++)
    {   
+      
       //go to the next node in the list
       node++;
+      
       //reset the array pointer for the list
       list_node = list_node_g;
+      
       //set the next array pointer for the list
       list_neighbor = list_neighbor_g[index_outer];
+      
+      //set the starting index for the array for qsort
       start = list_neighbor;
    
+      //loop though the list and find the distance from node to the list_node
       for (index_inner = 0; index_inner < NUMBER_OF_NODES; \
          index_inner++, list_neighbor++)
       {
+         //if the list_node == node
          if (position == index_inner)
          {
             list_neighbor->distance = -1;
@@ -96,14 +155,18 @@ void makeNeighborList( void )
          }
          else
          {
+            //else find the distance and save the index
             list_neighbor->index = index_inner;
             list_neighbor->distance = findDistance(node,list_node);
          }
+         //go to the next node
          list_node++;
       }
 
+      //a safety check to put the pointer back to the bounds of the array
       list_neighbor--;
 
+      //sort the array using quick sort
       qsort(start, NUMBER_OF_NODES, sizeof(struct N_List), compareFunction);
 #ifdef __DEBUG__
       for (index = 0; index < NUMBER_OF_NODES; index++,start++)
@@ -150,7 +213,6 @@ struct N_List **make2dNeighborList( void )
    
    if (inrange == NULL)
       exit(-1);  
-   
 
    for(i = 0; i < NUMBER_OF_NODES; i++)
    {
@@ -185,6 +247,8 @@ int main ( void )
    
    //vars
    Node *list_node = (Node*) calloc(NUMBER_OF_NODES, sizeof(Node));
+   Node **stack = (Node**) calloc(STACK_SIZE, \
+      sizeof(Node*));
 
    if(list_node == NULL)
       exit(-1);
@@ -212,6 +276,7 @@ int main ( void )
    Make2dInRangeFree(list_neighbor);
  
    free(list_node);
+   free(stack);
 
    return 0;
 }
