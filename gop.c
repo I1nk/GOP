@@ -68,38 +68,51 @@ void makeNeighborList( void )
 {
 
    //vars
-   unsigned long index, position = 0;
+   unsigned long index, index_inner, index_outer, position = 0;
    struct N_List *list_neighbor = *list_neighbor_g;
    struct N_List *start = list_neighbor;
    Node *node = list_node_g;
-   Node *list_node = list_node_g;
+   Node *list_node;// = list_node_g;
 
-   for (index = 0; index < NUMBER_OF_NODES; index++, list_neighbor++)
-   {
-      if (position == index)
-      {
-         list_neighbor->distance = -1;
-         list_neighbor->index = index;
-
-      }
-      else
-      {
-         list_neighbor->index = 5;
-         list_neighbor->distance = findDistance(node,list_node);
-      }
-      list_node++;
-   }
-
-   list_neighbor--;
-
-   qsort(start, NUMBER_OF_NODES, sizeof(struct N_List), compareFunction);
+   for (index_outer = 0; index_outer < NUMBER_OF_NODES-1; \
+      index_outer++, position++)
+   {   
+      //go to the next node in the list
+      node++;
+      //reset the array pointer for the list
+      list_node = list_node_g;
+      //set the next array pointer for the list
+      list_neighbor = list_neighbor_g[index_outer];
+      start = list_neighbor;
    
+      for (index_inner = 0; index_inner < NUMBER_OF_NODES; \
+         index_inner++, list_neighbor++)
+      {
+         if (position == index_inner)
+         {
+            list_neighbor->distance = -1;
+            list_neighbor->index = index_inner;
+   
+         }
+         else
+         {
+            list_neighbor->index = index_inner;
+            list_neighbor->distance = findDistance(node,list_node);
+         }
+         list_node++;
+      }
 
-   for (index = 0; index < NUMBER_OF_NODES; index++,start++)
-   {
-      printf("%lu     %lf\n", index, start->distance);
+      list_neighbor--;
+
+      qsort(start, NUMBER_OF_NODES, sizeof(struct N_List), compareFunction);
+   
+      //for (index = 0; index < NUMBER_OF_NODES; index++,start++)
+      //{
+      //   printf("%lu     %lf\n", index, start->distance);
+      //}
+      //printf("%lu %lu\n\n", index_outer, index_inner);
+      //puts("");
    }
-
 }
 
 double findDistance(Node *node1, Node *node2)
@@ -187,6 +200,8 @@ int main ( void )
    list_neighbor_g = list_neighbor;
 
    makeNeighborList();
+
+ //  printf("\nHello I am here\n");
 
    list_node_g = NULL;
    list_neighbor_g = NULL;
