@@ -57,6 +57,7 @@ Node **push(Node **node, Node *new_node)
    if (stack_index > STACK_SIZE)
    {
       puts("Stack will overflow since the stack is full.");
+      puts("Program will now exit");
       exit(-1);
    }
 
@@ -94,6 +95,7 @@ Node** pop(Node **node)
    if (stack_index)
    {  
       puts("tried to pop when the stack is empty.");
+      puts("Program will now exit");
       exit(-1);
    }
 
@@ -250,13 +252,21 @@ struct N_List **make2dNeighborList( void )
    inrange = (struct N_List**) malloc(NUMBER_OF_NODES * sizeof(struct N_List**));
    
    if (inrange == NULL)
+   {
+      puts("Program failed to allocate memory for the neighbor list.");
+      puts("Program will now exit.");
       exit(-1);  
+   }
 
    for(i = 0; i < NUMBER_OF_NODES; i++)
    {
       inrange[i] = (struct N_List*) calloc(NUMBER_OF_NODES, sizeof(struct N_List*));
       if (inrange[i] == NULL)
+      {
+         puts("Program failed to allocate memory for the neighbor list.");
+         puts("Program will now exit.");
          exit(-1);
+      }
    }
 
    return inrange;
@@ -289,7 +299,11 @@ int main ( void )
       sizeof(Node*));
 
    if(list_node == NULL)
-      exit(-1);
+   {
+      puts("Program failed to allocate memory for the node array.");
+      puts("Program will now exit.");
+      return -1;
+   }
 
    struct N_List **list_neighbor = make2dNeighborList();
    
