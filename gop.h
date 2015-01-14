@@ -41,7 +41,7 @@ unsigned long getNumberInStack(void);
 #define _TX_PROBAILITY_PERCENTAGE_ 0.7
 #define _NO_TX_PROBAILITY_PERCENTAGE_ 1.0 - _TX_PROBAILITY_PERCENTAGE_
 #define _STACK_CONSTANT_ 5
-#define _NUMBER_OF_NODES_ 1000
+#define _NUMBER_OF_NODES_ 50
 #define _STACK_SIZE_ _NUMBER_OF_NODES_ * _STACK_CONSTANT_
 
 //for testing the stack functions to ensure that they work
