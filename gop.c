@@ -47,12 +47,9 @@ void generateNodes( void )
    
 }
 
-Node **push(Node **node, Node *new_node)
+void push(Node *new_node)
 {
 
-   //vars
-   Node **output = node;
-   
    //check to ensure that the stack has room for another plate
    if (stack_index > STACK_SIZE)
    {
@@ -62,25 +59,31 @@ Node **push(Node **node, Node *new_node)
    }
 
    //increase the stack pointer by one
-   output++;
+   stack++;
    
    //give the stack pointer a new value
-   *output = new_node;
+   *stack = new_node;
 
    //increase the number of plates on the stack
    stack_index++;
 
-   return output;
-
 }
 
-Node* peak(Node **node)
+/**   
+ *    Peak at the top of the stack.
+ *    @return the node on the top of the statck, but does not pop the Node from the stack
+ */
+Node* peak( void )
 {
 
-   return node[0];
+   return *stack;
 
 }
 
+/**
+ *    Get the number of Nodes in the stack.
+ *    @return the number of nodes in the stack
+ */
 unsigned long getNumberInStack( void )
 {
 
@@ -88,11 +91,17 @@ unsigned long getNumberInStack( void )
 
 }
 
-Node** pop(Node **node)
+/**
+ *    Pop the node from the stack. Returns the node from the top of the stack.
+ *    @return Node *
+ */
+Node* pop( void )
 {
-   
+
+   Node *output = *stack;   
+
    //check to ensure that the stack has something on it
-   if (stack_index)
+   if (!stack_index)
    {  
       puts("tried to pop when the stack is empty.");
       puts("Program will now exit");
@@ -102,8 +111,11 @@ Node** pop(Node **node)
    //decrease the number of items on the stack by one   
    stack_index--;
 
+   //decrease the pointer by 1
+   stack--;
+
    //return the new top of the stack
-   return --node;
+   return output;
 
 }
 
@@ -208,6 +220,7 @@ void makeNeighborList( void )
 
       //sort the array using quick sort
       qsort(start, NUMBER_OF_NODES, sizeof(struct N_List), compareFunction);
+
 #ifdef __DEBUG__
       for (index = 0; index < NUMBER_OF_NODES; index++,start++)
       {
@@ -249,8 +262,10 @@ struct N_List **make2dNeighborList( void )
    unsigned long i;
    struct N_List **inrange;
    
+   //allocate memory for the 2d array
    inrange = (struct N_List**) malloc(NUMBER_OF_NODES * sizeof(struct N_List**));
    
+   //Check to see if program could allocate memory
    if (inrange == NULL)
    {
       puts("Program failed to allocate memory for the neighbor list.");
@@ -258,9 +273,13 @@ struct N_List **make2dNeighborList( void )
       exit(-1);  
    }
 
+   //go though the 2d array and allocte memory for each element
    for(i = 0; i < NUMBER_OF_NODES; i++)
    {
+      //allocate memory for the element
       inrange[i] = (struct N_List*) calloc(NUMBER_OF_NODES, sizeof(struct N_List*));
+
+      //check to see if the program could allocate the memory
       if (inrange[i] == NULL)
       {
          puts("Program failed to allocate memory for the neighbor list.");
@@ -282,7 +301,8 @@ void Make2dInRangeFree(struct N_List **p)
 
    //varaibles
    unsigned long i;
-   
+ 
+   //free the memory of each element  
    for (i = 0; i >= NUMBER_OF_NODES ; i--)
    {
       free(p[i]);
@@ -295,9 +315,10 @@ int main ( void )
    
    //vars
    Node *list_node = (Node*) calloc(NUMBER_OF_NODES, sizeof(Node));
-   Node **stack = (Node**) calloc(STACK_SIZE, \
+   stack = (Node**) calloc(STACK_SIZE, \
       sizeof(Node*));
 
+   //check to see if the program could allocate memory for the array
    if(list_node == NULL)
    {
       puts("Program failed to allocate memory for the node array.");
@@ -305,6 +326,7 @@ int main ( void )
       return -1;
    }
 
+   //make a 2d array for the neighbor list
    struct N_List **list_neighbor = make2dNeighborList();
    
    //set the globals up
@@ -319,15 +341,47 @@ int main ( void )
    //makes the neighbor list for each node
    makeNeighborList();
 
+#ifdef _TEST_STACK_
+#warning Testing the stack code to see if it works
+   Node *p;
+
+   push(&list_node[0]);
+   push(&list_node[1]);
+   push(&list_node[2]);
+   push(&list_node[3]);
+
+   p = pop();   
+
+   printf("Pop %lf\n", p->x);
+   p = peak();
+   printf("Peak %lf\n", p->x );
+   printf("%lf\n",list_node[0].x);
+   printf("%lf\n",list_node[1].x);
+   printf("%lf\n",list_node[2].x);
+   printf("%lf\n",list_node[3].x);
+#endif
 
 /////Nothing below this line./////////////////////////////////////////////////
 
+   //start cleaning the memory
    list_node_g = NULL;
    list_neighbor_g = NULL;
    
+   //clean the 2d array memory
    Make2dInRangeFree(list_neighbor);
  
+   //clean the 1d array
    free(list_node);
+
+   //reset the stack value
+   //this is only needed in testing the stack function and the stack should be empty
+   //But this will be kept here if something happens
+   if (stack_index)
+   {
+      puts("Warning: The stack still have Nodes in it and the program is ending.");
+   }
+   stack -= stack_index;
+
    free(stack);
 
    return 0;

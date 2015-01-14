@@ -26,12 +26,15 @@ typedef struct NODE
 void generateNodes( void );
 void makeNeighborList(void);
 void Make2dInRangeFree(struct N_List**);
+void push(Node*);
+
 
 struct N_List** make2dNeighborList(void);
 int compareFunction(const void*, const void*);
 double findDistance(Node*, Node*);
 Node* findNodeRandomly(void);
-Node* peak(Node**);
+Node* peak(void);
+Node*pop(void);
 unsigned long getNumberInStack(void);
 
 //defines
@@ -40,6 +43,11 @@ unsigned long getNumberInStack(void);
 #define _STACK_CONSTANT_ 5
 #define _NUMBER_OF_NODES_ 1000
 #define _STACK_SIZE_ _NUMBER_OF_NODES_ * _STACK_CONSTANT_
+
+//for testing the stack functions to ensure that they work
+//This is done in the main function
+//#define _TEST_STACK_
+
 
 //globals
 const unsigned long NUMBER_OF_NODES = _NUMBER_OF_NODES_;
@@ -54,5 +62,6 @@ const double MAX_RANGE = 5;
 unsigned int k_hops = 4;
 unsigned long stack_index = 0;
 const double RANDOM_NUMBER_MAX_D = (double) RAND_MAX;
+Node **stack;
 
 #endif
