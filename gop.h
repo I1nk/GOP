@@ -50,5 +50,6 @@ const double Y_MAX = 25;
 const double MAX_RANGE = 5;
 unsigned int k_hops = 4;
 unsigned long stack_index = 0;
+const double RANDOM_NUMBER_MAX_D = (double) RAND_MAX;
 
 #endif

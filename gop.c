@@ -12,7 +12,6 @@ void generateNodes( void )
    unsigned int index;
    double random_num;
    Node *list_node = list_node_g;
-   const double RANDOM_NUMBER_MAX_D = (double) RAND_MAX;
    
    //start the random number with seed based on the time
    srand(time(NULL));
@@ -74,6 +73,13 @@ Node **push(Node **node, Node *new_node)
 
 }
 
+unsigned long peak( void )
+{
+
+   return stack_index;
+
+}
+
 Node** pop(Node **node)
 {
    
@@ -90,6 +96,31 @@ Node** pop(Node **node)
    //return the new top of the stack
    return --node;
 
+}
+
+
+Node* findTX( void )
+{
+
+   //vars
+   double random_number;
+   unsigned long index;
+   Node *output = list_node_g;
+
+   //seed the random number
+   srand(time(NULL));
+
+   //find the random number
+   random_number = rand();
+
+   //scale the random number
+   random_number /= RANDOM_NUMBER_MAX_D;
+
+   //scale the random number to the number of nodes that were generated to an index value
+   index = (unsigned long) (random_number * NUMBER_OF_NODES);
+
+   //return the node
+   return &output[index];
 }
 
 void transmitMsg()
