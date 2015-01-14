@@ -73,7 +73,14 @@ Node **push(Node **node, Node *new_node)
 
 }
 
-unsigned long peak( void )
+Node* peak(Node **node)
+{
+
+   return node[0];
+
+}
+
+unsigned long getNumberInStack( void )
 {
 
    return stack_index;
@@ -99,7 +106,7 @@ Node** pop(Node **node)
 }
 
 
-Node* findTX( void )
+Node* findNodeRandomly( void )
 {
 
    //vars

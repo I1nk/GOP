@@ -27,9 +27,12 @@ void generateNodes( void );
 void makeNeighborList(void);
 void Make2dInRangeFree(struct N_List**);
 
-struct N_List **make2dNeighborList(void);
+struct N_List** make2dNeighborList(void);
 int compareFunction(const void*, const void*);
 double findDistance(Node*, Node*);
+Node* findNodeRandomly(void);
+Node* peak(Node**);
+unsigned long getNumberInStack(void);
 
 //defines
 #define _TX_PROBAILITY_PERCENTAGE_ 0.7
