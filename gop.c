@@ -9,7 +9,7 @@ void generateNodes( void )
 {
 
    //vars
-   unsigned int index;
+   unsigned long index;
    double random_num;
    Node *list_node = list_node_g;
    
@@ -42,6 +42,8 @@ void generateNodes( void )
 
       //set the x location of the node
       list_node->y = Y_MAX * random_num;
+
+      list_node->index = index;
  
    }
    
@@ -134,7 +136,7 @@ Node* findNodeRandomly( void )
    //find the random number
    random_number = rand();
 
-   //scale the random number
+   //scale the random numbernsmitMsg
    random_number /= RANDOM_NUMBER_MAX_D;
 
    //scale the random number to the number of nodes that were generated to an index value
@@ -144,11 +146,100 @@ Node* findNodeRandomly( void )
    return &output[index];
 }
 
-void transmitMsg()
+void transmitMsg( void )
 {
 
    //vars
+   Node *tx, *rx, *current;
+   boolean finished = false;
+   double random_number;
+   unsigned long number_of_tx = 0;
+   //current will be the node that the msg is currently at 
+   //tx is the node that the msg started from
+   //rx will be the node the msg wants to go to
+
+   //seed the random number generator with a time
+   srand(time(NULL));
+
+   //find the rx and tx nodes
+   rx = findNodeRandomly();
+   tx = findNodeRandomly();
+
+   //set the current node to the tx so we can know where the msg started at
+   current = tx;
+
+   //loop though and keep tx untill is equal to rx  
+   while(!finished)
+   {
+
+      //get the random number
+      random_number = rand();
+
+      //scale the random number from 0 to 1
+      random_number /= RANDOM_NUMBER_MAX_D;
    
+      printf("this is the dice roll number %lf\n", random_number);
+
+      //if the node will transmit bassed on the percentage to transmit
+      if((random_number < TX_PROBAILITY_PERCENTAGE))
+      {
+
+         printf("The node that will be TX is %lu\n", current->index);
+         //find the nodes that will be RCVD the msg send by the TX node.
+         findNodesRCVD(current);
+         number_of_tx++;
+
+      }
+      
+      //only tx if there is a node in the stack else the msg is done being tx
+      if(getNumberInStack())
+      {
+         //pick the next node that will be transmitting from the stack
+         current = pop();
+      }
+      else
+         finished = true;
+   }
+   
+   
+   printf("This is the node that is meant to RX the mesg index  %lu\n", rx->index);
+   printf("The node that was meant to rx RCVD msg %i\n", rx->rx);
+   printf("The number of times the msg was transmitted is %lu\n",number_of_tx);
+
+}
+
+void findNodesRCVD(Node *current)
+{
+
+   //vars
+   Node *list_node = list_node_g;
+   struct N_List **list_neighbor = list_neighbor_g;
+   struct N_List *neighbor_p;
+
+   //go to the node that is currently tx the msg neighbor list
+   list_neighbor += current->index;
+   neighbor_p = *list_neighbor;
+
+   while(neighbor_p->distance <= MAX_RANGE)
+   {
+
+      //add the node to the stack if the node has yet to RCVD the msg
+      if(!list_node[neighbor_p->index].tx)
+      {
+         //add the node to the stack
+         push(&list_node[neighbor_p->index]);
+
+         //add one to the tx count of the node
+         list_node[neighbor_p->index].tx += 1;
+         list_node[neighbor_p->index].rx += 1;
+
+      }
+      else
+         list_node[neighbor_p->index].rx += 1;
+
+      //increase the pointer by one to the next index
+      neighbor_p++;
+   }
 
 }
 
@@ -172,7 +263,7 @@ void makeNeighborList( void )
 {
 
    //vars
-   unsigned long index, index_inner, index_outer, position = 0;
+   unsigned long index_inner, index_outer, position = 0;
    struct N_List *list_neighbor = *list_neighbor_g;
    struct N_List *start = list_neighbor;
    Node *node = list_node_g;
@@ -180,7 +271,7 @@ void makeNeighborList( void )
 
    for (index_outer = 0; index_outer < NUMBER_OF_NODES-1; \
       index_outer++, position++)
-   {   
+   {   //start of outer for loop
       
       //go to the next node in the list
       node++;
@@ -197,7 +288,7 @@ void makeNeighborList( void )
       //loop though the list and find the distance from node to the list_node
       for (index_inner = 0; index_inner < NUMBER_OF_NODES; \
          index_inner++, list_neighbor++)
-      {
+      {//start of inner for loop
          //if the list_node == node
          if (position == index_inner)
          {
@@ -213,7 +304,7 @@ void makeNeighborList( void )
          }
          //go to the next node
          list_node++;
-      }
+      }//end of inner for loop
 
       //a safety check to put the pointer back to the bounds of the array
       list_neighbor--;
@@ -229,7 +320,7 @@ void makeNeighborList( void )
       printf("outer inter == %lu %lu\n\n", index_outer, index_inner);
       puts("");
 #endif      
-   }
+   }//end of outer for loop
 }
 
 double findDistance(Node *node1, Node *node2)
@@ -340,6 +431,9 @@ int main ( void )
 
    //makes the neighbor list for each node
    makeNeighborList();
+
+   transmitMsg();
+
 
 #ifdef _TEST_STACK_
 #warning Testing the stack code to see if it works

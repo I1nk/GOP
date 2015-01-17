@@ -8,6 +8,12 @@
 #include <unistd.h> //for sleep
 //structs
 
+typedef enum Boolean 
+{
+   false,
+   true
+}boolean;
+
 struct N_List
 {
    unsigned long index;
@@ -20,6 +26,7 @@ typedef struct NODE
    double y;
    char rx;
    char tx;
+   unsigned long index;
 }Node;
 
 //functions
@@ -27,18 +34,19 @@ void generateNodes( void );
 void makeNeighborList(void);
 void Make2dInRangeFree(struct N_List**);
 void push(Node*);
-
+void findNodesRCVD(Node*);
+void transmitMsg(void);
 
 struct N_List** make2dNeighborList(void);
 int compareFunction(const void*, const void*);
 double findDistance(Node*, Node*);
 Node* findNodeRandomly(void);
 Node* peak(void);
-Node*pop(void);
+Node* pop(void);
 unsigned long getNumberInStack(void);
 
 //defines
-#define _TX_PROBAILITY_PERCENTAGE_ 0.7
+#define _TX_PROBAILITY_PERCENTAGE_ 0.5
 #define _NO_TX_PROBAILITY_PERCENTAGE_ 1.0 - _TX_PROBAILITY_PERCENTAGE_
 #define _STACK_CONSTANT_ 5
 #define _NUMBER_OF_NODES_ 50
