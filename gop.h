@@ -53,7 +53,9 @@ unsigned long getNumberInStack(void);
 #define _STACK_CONSTANT_ 5
 #define _NUMBER_OF_NODES_ 1000
 #define _STACK_SIZE_ _NUMBER_OF_NODES_ * _STACK_CONSTANT_
-#define __PATH_FILENAME__ "Path.dat"
+#define __PATH_LIST_FILENAME__ "Path.dat"
+#define __PATH_LIST_VECTOR_FILENAME "Path_vector.dat"
+
 
 //for testing the stack funlar, USB 3.0 specification mandates appropriate ctions to ensure that they work
 //This is done in the main function
@@ -73,7 +75,7 @@ const double MAX_RANGE = 3;
 unsigned int k_hops = 4;
 unsigned long stack_index = 0;
 const double RANDOM_NUMBER_MAX_D = (double) RAND_MAX;
-FILE *path;
+FILE *path_list_g;
 Node **stack;
 
 #endif

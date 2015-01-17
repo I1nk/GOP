@@ -184,8 +184,6 @@ void transmitMsg( void )
 
       //scale the random number from 0 to 1
       random_number /= RANDOM_NUMBER_MAX_D;
-   
-      printf("this is the dice roll number %lf\n", random_number);
 
       //if the node will transmit bassed on the percentage to transmit
       if(current->k_hops_left > 0)
@@ -263,8 +261,10 @@ void findNodesRCVD(Node *current)
          //add one to the tx count of the node
          list_node[neighbor_p->index].tx += 1;
          list_node[neighbor_p->index].rx += 1;
-         list_node[neighbor_p->index].k_hops_left = current->k_hops_left;
-
+         list_node[neighbor_p->index].k_hops_left = current->k_hops_left;         
+         //print to file what node is communicating with what node
+         fprintf(path_list_g,"Node %lu  ->  %lu\n",\
+            current->index, neighbor_p->index);
 
       }
       else
@@ -466,9 +466,9 @@ int main ( void )
       sizeof(Node*));
    
    //open the file to write the path 
-   path = fopen(__PATH_FILENAME__, "w");
+   path_list_g = fopen(__PATH_LIST_FILENAME__, "w");
 
-   if(path == NULL)
+   if(path_list_g == NULL)
    {
       puts("Error createing a file to store the path of the msg.");
       return -1;
@@ -524,6 +524,10 @@ int main ( void )
 #endif
 
 /////Nothing below this line./////////////////////////////////////////////////
+
+
+   //close out global file pointers
+   fclose(path_list_g);
 
    //start cleaning the memory
    list_node_g = NULL;
