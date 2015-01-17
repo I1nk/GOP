@@ -156,6 +156,7 @@ void transmitMsg( void )
    //vars
    Node *tx, *rx, *current;
    boolean finished = false;
+   boolean tx_ok = false;
    double random_number;
    unsigned long number_of_tx = 0;
    //current will be the node that the msg is currently at 
@@ -172,6 +173,8 @@ void transmitMsg( void )
    //set the current node to the tx so we can know where the msg started at
    current = tx;
 
+   current->k_hops_left = k_hops;
+
    //loop though and keep tx untill is equal to rx  
    while(!finished)
    {
@@ -184,10 +187,22 @@ void transmitMsg( void )
    
       printf("this is the dice roll number %lf\n", random_number);
 
-      //if the node will transmit bassed on the percentage to transmit
-      if((random_number < TX_PROBAILITY_PERCENTAGE))
-      {
+      
 
+      //if the node will transmit bassed on the percentage to transmit
+      if(current->k_hops_left > 0)
+      {
+         tx_ok = true;
+         current->k_hops_left--;
+         //printf("k hops left %u\n", current->k_hops_left);
+      }
+      else if(random_number < TX_PROBAILITY_PERCENTAGE)
+      {
+         tx_ok = true;
+      }
+
+      if(tx_ok)
+      {
          printf("The node that will be TX is %lu\n", current->index);
          //find the nodes that will be RCVD the msg send by the TX node.
          findNodesRCVD(current);
@@ -203,6 +218,10 @@ void transmitMsg( void )
       }
       else
          finished = true;
+
+      //reset the value to false to ensure that the value will normally be fals
+      //e if not set by an if statement
+      tx_ok = false;
    }
    
    
@@ -236,6 +255,8 @@ void findNodesRCVD(Node *current)
          //add one to the tx count of the node
          list_node[neighbor_p->index].tx += 1;
          list_node[neighbor_p->index].rx += 1;
+         list_node[neighbor_p->index].k_hops_left = current->k_hops_left;
+
 
       }
       else
