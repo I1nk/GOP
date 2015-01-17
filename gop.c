@@ -126,7 +126,7 @@ Node* pop( void )
 }
 
 
-Node* findNodeRandomly( void )
+Node* findNodeRandomly( int plus )
 {
 
    //vars
@@ -135,7 +135,7 @@ Node* findNodeRandomly( void )
    Node *output = list_node_g;
 
    //seed the random number
-   srand(time(NULL));
+   srand(time(NULL) + plus);
 
    //find the random number
    random_number = rand();
@@ -167,8 +167,8 @@ void transmitMsg( void )
    srand(time(NULL));
 
    //find the rx and tx nodes
-   rx = findNodeRandomly();
-   tx = findNodeRandomly();
+   rx = findNodeRandomly(0);
+   tx = findNodeRandomly(1);
 
    //set the current node to the tx so we can know where the msg started at
    current = tx;
@@ -187,8 +187,6 @@ void transmitMsg( void )
    
       printf("this is the dice roll number %lf\n", random_number);
 
-      
-
       //if the node will transmit bassed on the percentage to transmit
       if(current->k_hops_left > 0)
       {
@@ -201,9 +199,19 @@ void transmitMsg( void )
          tx_ok = true;
       }
 
+      if(rx->index == current->index)
+      {
+         rx->rx++;
+         tx_ok = false;
+      }
+
+
       if(tx_ok)
       {
+
+#ifdef __DEBUG__
          printf("The node that will be TX is %lu\n", current->index);
+#endif
          //find the nodes that will be RCVD the msg send by the TX node.
          findNodesRCVD(current);
          number_of_tx++;
@@ -225,8 +233,8 @@ void transmitMsg( void )
    }
    
    
-   printf("This is the node that is meant to RX the mesg index  %lu\n", rx->index);
-   printf("The node that was meant to rx RCVD msg %i\n", rx->rx);
+   printf("This is the node that is meant to RX the mesg index  %lu\nTX %lu\n", rx->index,tx->index);
+   printf("The node that was meant to RCVD msg  RCVD the msg this times %i\n", rx->rx);
    printf("The number of times the msg was transmitted is %lu\n",number_of_tx);
 
 }
@@ -424,19 +432,27 @@ void Make2dInRangeFree(struct N_List **p)
       free(p[i]);
    }
 
+   //free(p);
 }
 
 void PlotNodes(char *filename)
 {
    
+   //vars
    const char *file = filename;
-
    FILE *fd = fopen(file, "w");
-   
+   unsigned long index;
+   Node *list = list_node_g;
+
    if (fd == NULL)
    {
-      puts("Error opening file.")
-      exit(-1);
+      puts("Error opening file.");
+      exit(1);
+   }
+
+   for (index = 0; index < _NUMBER_OF_NODES_; index++, list++)
+   {
+      fprintf(fd, "%lf %lf\n",list->x,list->y);   
    }
 
 }
@@ -448,6 +464,15 @@ int main ( void )
    Node *list_node = (Node*) calloc(NUMBER_OF_NODES, sizeof(Node));
    stack = (Node**) calloc(STACK_SIZE, \
       sizeof(Node*));
+   
+   //open the file to write the path 
+   path = fopen(__PATH_FILENAME__, "w");
+
+   if(path == NULL)
+   {
+      puts("Error createing a file to store the path of the msg.");
+      return -1;
+   }
 
    //check to see if the program could allocate memory for the array
    if(list_node == NULL)
@@ -472,8 +497,11 @@ int main ( void )
    //makes the neighbor list for each node
    makeNeighborList();
 
+   //Start the simulation
    transmitMsg();
 
+   //print the nodes
+   PlotNodes("data.dat");
 
 #ifdef _TEST_STACK_
 #warning Testing the stack code to see if it works
@@ -514,6 +542,7 @@ int main ( void )
    {
       puts("Warning: The stack still have Nodes in it and the program is ending.");
    }
+   
    stack -= stack_index;
 
    free(stack);
