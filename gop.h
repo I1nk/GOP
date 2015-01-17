@@ -38,6 +38,8 @@ void push(Node*);
 void findNodesRCVD(Node*);
 void transmitMsg(void);
 void PlotNodes(char*);
+void inline colorChanger(void);
+void openFiles(void);
 
 struct N_List** make2dNeighborList(void);
 int compareFunction(const void*, const void*);
@@ -48,13 +50,18 @@ Node* pop(void);
 unsigned long getNumberInStack(void);
 
 //defines
-#define _TX_PROBAILITY_PERCENTAGE_ 0.62
+#define _TX_PROBAILITY_PERCENTAGE_ 0.5
 #define _NO_TX_PROBAILITY_PERCENTAGE_ 1.0 - _TX_PROBAILITY_PERCENTAGE_
 #define _STACK_CONSTANT_ 5
 #define _NUMBER_OF_NODES_ 1000
 #define _STACK_SIZE_ _NUMBER_OF_NODES_ * _STACK_CONSTANT_
 #define __PATH_LIST_FILENAME__ "Path.dat"
 #define __PATH_LIST_VECTOR_FILENAME "Path_vector.dat"
+#define NODE_XY_COORD_FILENAME "Node_coord.dat"
+#define VECTOR_FILENAME "VectorPath.dat"
+#define VECTOR_DOUBLE_FILENAME "VectorPathDouble.dat"
+#define START_POINT_FILENAME "startPoint.dat"
+#define END_POINT_FILENAME "endPoint.dat"
 
 
 //for testing the stack funlar, USB 3.0 specification mandates appropriate ctions to ensure that they work
@@ -71,11 +78,19 @@ const double TX_PROBAILITY_PERCENTAGE = _TX_PROBAILITY_PERCENTAGE_;
 const double NO_TX_PROBAILITY_PERCENTAGE = _NO_TX_PROBAILITY_PERCENTAGE_;
 const double X_MAX = 50;
 const double Y_MAX = 20;
-const double MAX_RANGE = 3;
-unsigned int k_hops = 4;
+const double MAX_RANGE = 2;
+unsigned int k_hops = 3;
 unsigned long stack_index = 0;
 const double RANDOM_NUMBER_MAX_D = (double) RAND_MAX;
+unsigned char rgb_r_g = 0;
+unsigned char rgb_g_g = 0;
+unsigned char rgb_b_g = 0;
+char color_changer_g = 1;
 FILE *path_list_g;
+FILE *vector_path_list_g;
+FILE *vector_path_double_list_g;
+FILE *start_node_g;
+FILE *end_node_g;
 Node **stack;
 
 #endif

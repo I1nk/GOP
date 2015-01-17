@@ -242,18 +242,27 @@ void findNodesRCVD(Node *current)
 
    //vars
    Node *list_node = list_node_g;
+   Node *node = list_node_g;
+   double dx, dy;
    struct N_List **list_neighbor = list_neighbor_g;
    struct N_List *neighbor_p;
+
+   //change the rgb color scale
+   colorChanger();
 
    //go to the node that is currently tx the msg neighbor list
    list_neighbor += current->index;
    neighbor_p = *list_neighbor;
+   neighbor_p++;
 
    while(neighbor_p->distance <= MAX_RANGE)
    {
+      //Find the length of the vector for the plot
+      dx = node[neighbor_p->index].x - current->x;
+      dy = node[neighbor_p->index].y - current->y;
 
       //add the node to the stack if the node has yet to RCVD the msg
-      if(!list_node[neighbor_p->index].tx)
+      if(list_node[neighbor_p->index].rx == 0)
       {
          //add the node to the stack
          push(&list_node[neighbor_p->index]);
@@ -266,10 +275,25 @@ void findNodesRCVD(Node *current)
          fprintf(path_list_g,"Node %lu  ->  %lu\n",\
             current->index, neighbor_p->index);
 
+         fprintf(vector_path_list_g, "%8.4lf %8.4lf %8.4lf %8.4lf %u %u %u\n"\
+         ,current->x, current->y, dx,\
+         dy, rgb_r_g, rgb_g_g, rgb_b_g);
+
+         fprintf(vector_path_double_list_g, \
+         "%8.4lf %8.4lf %8.4lf %8.4lf %u %u %u\n"\
+         ,current->x, current->y, dx,\
+         dy, rgb_r_g, rgb_g_g, rgb_b_g);
+
       }
       else
-         list_node[neighbor_p->index].rx += 1;
+      {
+         list_node[neighbor_p->index].rx += 1;         
+         fprintf(vector_path_double_list_g, \
+         "%8.4lf %8.4lf %8.4lf %8.4lf %u %u %u\n"\
+         ,current->x, current->y, dx,\
+         dy, rgb_r_g, rgb_g_g, rgb_b_g);
 
+      }
       //increase the pointer by one to the next index
       neighbor_p++;
    }
@@ -304,10 +328,7 @@ void makeNeighborList( void )
 
    for (index_outer = 0; index_outer < NUMBER_OF_NODES-1; \
       index_outer++, position++)
-   {   //start of outer for loop
-      
-      //go to the next node in the list
-      node++;
+   {  //start of outer for loop
       
       //reset the array pointer for the list
       list_node = list_node_g;
@@ -322,6 +343,7 @@ void makeNeighborList( void )
       for (index_inner = 0; index_inner < NUMBER_OF_NODES; \
          index_inner++, list_neighbor++)
       {//start of inner for loop
+            //go to the next node
          //if the list_node == node
          if (position == index_inner)
          {
@@ -337,10 +359,14 @@ void makeNeighborList( void )
          }
          //go to the next node
          list_node++;
+         
       }//end of inner for loop
 
       //a safety check to put the pointer back to the bounds of the array
       list_neighbor--;
+
+      //go to the next node
+      node++;
 
       //sort the array using quick sort
       qsort(start, NUMBER_OF_NODES, sizeof(struct N_List), compareFunction);
@@ -457,6 +483,75 @@ void PlotNodes(char *filename)
 
 }
 
+void inline colorChanger( void )
+{
+
+   switch (color_changer_g)
+   {
+      case 1:
+         rgb_r_g += 27;
+         color_changer_g ++;
+         break;
+      case 2:
+         rgb_g_g += 29;
+         color_changer_g++;
+         break;
+      case 3:
+         rgb_b_g += 19;
+         color_changer_g = 1;
+         break;
+      default:
+         color_changer_g = 1;
+         break;
+   }
+
+}
+
+void openFiles( void )
+{
+   //open the file to write the path 
+   path_list_g = fopen(__PATH_LIST_FILENAME__, "w");
+   vector_path_list_g = fopen(VECTOR_FILENAME,"w");
+   vector_path_double_list_g = fopen(VECTOR_DOUBLE_FILENAME,"w");
+   start_node_g = fopen(START_POINT_FILENAME,"w");
+   end_node_g = fopen(END_POINT_FILENAME,"w");
+
+   //check to see if the file was opened
+   if(path_list_g == NULL)
+   {
+      puts("Error createing a file to store the path of the msg.");
+      exit(1);
+   }
+   
+   if(start_node_g == NULL)
+   {
+      puts("Error createing a file to store the path of the msg.");
+      exit(1);
+   }
+   
+   if(end_node_g == NULL)
+   {
+      puts("Error createing a file to store the path of the msg.");
+      exit(1);
+   }
+
+   //check to see if the file is opened
+   if(vector_path_list_g == NULL)
+   {
+      puts("Error createing a file to store the path of the msg.");
+      exit(1);
+   }
+
+   //check to see if the file is opened
+   if(vector_path_double_list_g == NULL)
+   {
+      puts("Error createing a file to store the path of the msg.");
+      exit(1);
+   }
+
+
+}
+
 int main ( void )
 {
    
@@ -464,15 +559,9 @@ int main ( void )
    Node *list_node = (Node*) calloc(NUMBER_OF_NODES, sizeof(Node));
    stack = (Node**) calloc(STACK_SIZE, \
       sizeof(Node*));
-   
-   //open the file to write the path 
-   path_list_g = fopen(__PATH_LIST_FILENAME__, "w");
 
-   if(path_list_g == NULL)
-   {
-      puts("Error createing a file to store the path of the msg.");
-      return -1;
-   }
+   //open the files to print the data out
+   openFiles();
 
    //check to see if the program could allocate memory for the array
    if(list_node == NULL)
@@ -501,7 +590,7 @@ int main ( void )
    transmitMsg();
 
    //print the nodes
-   PlotNodes("data.dat");
+   PlotNodes(NODE_XY_COORD_FILENAME);
 
 #ifdef _TEST_STACK_
 #warning Testing the stack code to see if it works
@@ -528,6 +617,10 @@ int main ( void )
 
    //close out global file pointers
    fclose(path_list_g);
+   fclose(vector_path_list_g);
+   fclose(vector_path_double_list_g);
+   fclose(start_node_g);
+   fclose(end_node_g);
 
    //start cleaning the memory
    list_node_g = NULL;
