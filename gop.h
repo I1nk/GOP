@@ -26,6 +26,7 @@ typedef struct NODE
    double y;
    char rx;
    char tx;
+   unsigned char k_hops_left;
    unsigned long index;
 }Node;
 

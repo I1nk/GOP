@@ -43,7 +43,11 @@ void generateNodes( void )
       //set the x location of the node
       list_node->y = Y_MAX * random_num;
 
+      //set the index value
       list_node->index = index;
+
+      //set the k_hops_left value
+      list_node->k_hops_left = 0;
  
    }
    
