@@ -426,6 +426,21 @@ void Make2dInRangeFree(struct N_List **p)
 
 }
 
+void PlotNodes(char *filename)
+{
+   
+   const char *file = filename;
+
+   FILE *fd = fopen(file, "w");
+   
+   if (fd == NULL)
+   {
+      puts("Error opening file.")
+      exit(-1);
+   }
+
+}
+
 int main ( void )
 {
    
