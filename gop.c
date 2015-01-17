@@ -159,6 +159,7 @@ void transmitMsg( void )
    boolean tx_ok = false;
    double random_number;
    unsigned long number_of_tx = 0;
+   unsigned long number_of_not_tx = 0;
    //current will be the node that the msg is currently at 
    //tx is the node that the msg started from
    //rx will be the node the msg wants to go to
@@ -170,9 +171,16 @@ void transmitMsg( void )
    rx = findNodeRandomly(0);
    tx = findNodeRandomly(1);
 
+   //print out the data to file for the start node and end node
+   fprintf(end_node_g,"%lf %lf\n",rx->x, rx->y);
+   fprintf(start_node_g,"%lf %lf\n",tx->x, tx->y);
+
+
    //set the current node to the tx so we can know where the msg started at
    current = tx;
 
+   //set the number of k_hops 
+   //This number states how many times the msg will 100% TX
    current->k_hops_left = k_hops;
 
    //loop though and keep tx untill is equal to rx  
@@ -190,7 +198,6 @@ void transmitMsg( void )
       {
          tx_ok = true;
          current->k_hops_left--;
-         //printf("k hops left %u\n", current->k_hops_left);
       }
       else if(random_number < TX_PROBAILITY_PERCENTAGE)
       {
@@ -201,6 +208,7 @@ void transmitMsg( void )
       {
          rx->rx++;
          tx_ok = false;
+         number_of_not_tx++;
       }
 
 
@@ -225,6 +233,9 @@ void transmitMsg( void )
       else
          finished = true;
 
+      if(tx_ok == false)
+         number_of_not_tx++;
+
       //reset the value to false to ensure that the value will normally be fals
       //e if not set by an if statement
       tx_ok = false;
@@ -234,6 +245,8 @@ void transmitMsg( void )
    printf("This is the node that is meant to RX the mesg index  %lu\nTX %lu\n", rx->index,tx->index);
    printf("The node that was meant to RCVD msg  RCVD the msg this times %i\n", rx->rx);
    printf("The number of times the msg was transmitted is %lu\n",number_of_tx);
+   printf("The number of times the msg wasn't transmitted is %lu\n", \
+   number_of_not_tx);
 
 }
 

@@ -50,7 +50,7 @@ Node* pop(void);
 unsigned long getNumberInStack(void);
 
 //defines
-#define _TX_PROBAILITY_PERCENTAGE_ 0.5
+#define _TX_PROBAILITY_PERCENTAGE_ 0.72
 #define _NO_TX_PROBAILITY_PERCENTAGE_ 1.0 - _TX_PROBAILITY_PERCENTAGE_
 #define _STACK_CONSTANT_ 5
 #define _NUMBER_OF_NODES_ 1000
