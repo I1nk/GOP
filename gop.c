@@ -175,9 +175,12 @@ void transmitMsg( void )
    fprintf(end_node_g,"%lf %lf\n",rx->x, rx->y);
    fprintf(start_node_g,"%lf %lf\n",tx->x, tx->y);
 
-
    //set the current node to the tx so we can know where the msg started at
    current = tx;
+
+   //set it up so it will have already TXed a msg and RX a msg
+   current->tx++;
+   current->rx++;
 
    //set the number of k_hops 
    //This number states how many times the msg will 100% TX
@@ -283,7 +286,8 @@ void findNodesRCVD(Node *current)
          //add one to the tx count of the node
          list_node[neighbor_p->index].tx += 1;
          list_node[neighbor_p->index].rx += 1;
-         list_node[neighbor_p->index].k_hops_left = current->k_hops_left;         
+         list_node[neighbor_p->index].k_hops_left = current->k_hops_left;
+
          //print to file what node is communicating with what node
          fprintf(path_list_g,"Node %lu  ->  %lu\n",\
             current->index, neighbor_p->index);
@@ -569,6 +573,13 @@ int main ( void )
 {
    
    //vars
+   clock_t begin, end;
+   double time_spent;
+
+   //begin timing the code
+   begin = clock();
+
+
    Node *list_node = (Node*) calloc(NUMBER_OF_NODES, sizeof(Node));
    stack = (Node**) calloc(STACK_SIZE, \
       sizeof(Node*));
@@ -625,6 +636,11 @@ int main ( void )
    printf("%lf\n",list_node[3].x);
 #endif
 
+   end = clock();
+
+   time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+
+   printf("The code took %lf seconds to run.\n", time_spent);
 /////Nothing below this line./////////////////////////////////////////////////
 
 
