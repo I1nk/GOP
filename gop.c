@@ -14,7 +14,7 @@ void generateNodes( void )
    Node *list_node = list_node_g;
    
    //start the random number with seed based on the time
-   srand(time(NULL));
+   //srand(time(NULL));
 
    //Find a random number
    random_num = rand();
@@ -135,7 +135,7 @@ Node* findNodeRandomly( int plus )
    Node *output = list_node_g;
 
    //seed the random number
-   srand(time(NULL) + plus);
+   //srand(time(NULL) + plus);
 
    //find the random number
    random_number = rand();
@@ -165,7 +165,7 @@ void transmitMsg( void )
    //rx will be the node the msg wants to go to
 
    //seed the random number generator with a time
-   srand(time(NULL));
+   //srand(time(NULL));
 
    //find the rx and tx nodes
    rx = findNodeRandomly(0);
@@ -576,9 +576,11 @@ int main ( void )
    clock_t begin, end;
    double time_spent;
 
+   //seed the random number generator
+   srand(time(NULL));
+
    //begin timing the code
    begin = clock();
-
 
    Node *list_node = (Node*) calloc(NUMBER_OF_NODES, sizeof(Node));
    stack = (Node**) calloc(STACK_SIZE, \
