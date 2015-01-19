@@ -183,7 +183,6 @@ void transmitMsg( void )
    current = tx;
 
    //set it up so it will have already TXed a msg and RX a msg
-   current->tx++;
    current->rx++;
 
    //set the number of k_hops 
@@ -225,6 +224,10 @@ void transmitMsg( void )
 #ifdef __DEBUG__
          printf("The node that will be TX is %lu\n", current->index);
 #endif
+   
+         //increase the TX number by one for the node
+         current->tx++;
+
          //find the nodes that will be RCVD the msg send by the TX node.
          findNodesRCVD(current);
          number_of_tx++;
@@ -288,7 +291,7 @@ void findNodesRCVD(Node *current)
          push(&list_node[neighbor_p->index]);
 
          //add one to the tx count of the node
-         list_node[neighbor_p->index].tx += 1;
+         //list_node[neighbor_p->index].tx += 1;
          list_node[neighbor_p->index].rx += 1;
          list_node[neighbor_p->index].k_hops_left = current->k_hops_left;
 
@@ -594,7 +597,7 @@ void countNodesRXTX(char *filename)
    for (index = 0; index < NUMBER_OF_NODES; index++, list++)
    {
       //print the data to file
-      fprintf(fd, "%lu %i %i\n", list->index, list->tx, list->rx);
+      fprintf(fd, "%15lu %8i %8i\n", list->index, list->rx, list->tx);
    }
 
    //close the file
@@ -650,6 +653,9 @@ int main ( void )
 
    //print the nodes
    PlotNodes(NODE_XY_COORD_FILENAME);
+
+   //print out the number of TX and RX for each node
+   countNodesRXTX("NumberofRX.dat");
 
 #ifdef _TEST_STACK_
 #warning Testing the stack code to see if it works
