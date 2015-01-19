@@ -48,6 +48,10 @@ void generateNodes( void )
 
       //set the k_hops_left value
       list_node->k_hops_left = 0;
+
+      //set the these vars to zero
+      list_node->tx = 0;
+      list_node->rx = 0;
  
    }
    
@@ -126,7 +130,7 @@ Node* pop( void )
 }
 
 
-Node* findNodeRandomly( int plus )
+Node* findNodeRandomly( void )
 {
 
    //vars
@@ -168,8 +172,8 @@ void transmitMsg( void )
    //srand(time(NULL));
 
    //find the rx and tx nodes
-   rx = findNodeRandomly(0);
-   tx = findNodeRandomly(1);
+   rx = findNodeRandomly();
+   tx = findNodeRandomly();
 
    //print out the data to file for the start node and end node
    fprintf(end_node_g,"%lf %lf\n",rx->x, rx->y);
@@ -524,10 +528,10 @@ void inline colorChanger( void )
 
 }
 
-void openFiles( void )
+void openFiles( int index )
 {
    //open the file to write the path 
-   path_list_g = fopen(__PATH_LIST_FILENAME__, "w");
+   path_list_g = fopen(PATH_LIST_FILENAME, "w");
    vector_path_list_g = fopen(VECTOR_FILENAME,"w");
    vector_path_double_list_g = fopen(VECTOR_DOUBLE_FILENAME,"w");
    start_node_g = fopen(START_POINT_FILENAME,"w");
@@ -616,7 +620,7 @@ int main ( void )
       sizeof(Node*));
 
    //open the files to print the data out
-   openFiles();
+   openFiles(0);
 
    //check to see if the program could allocate memory for the array
    if(list_node == NULL)

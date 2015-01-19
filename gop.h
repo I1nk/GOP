@@ -39,13 +39,13 @@ void findNodesRCVD(Node*);
 void transmitMsg(void);
 void PlotNodes(char*);
 void inline colorChanger(void);
-void openFiles(void);
+void openFiles(int);
 void countNodesRXTX(char*);
 
 struct N_List** make2dNeighborList(void);
 int compareFunction(const void*, const void*);
 double findDistance(Node*, Node*);
-Node* findNodeRandomly(int);
+Node* findNodeRandomly(void);
 Node* peak(void);
 Node* pop(void);
 unsigned long getNumberInStack(void);
@@ -56,8 +56,8 @@ unsigned long getNumberInStack(void);
 #define _STACK_CONSTANT_ 5
 #define _NUMBER_OF_NODES_ 1000
 #define _STACK_SIZE_ _NUMBER_OF_NODES_ * _STACK_CONSTANT_
-#define __PATH_LIST_FILENAME__ "Path.dat"
-#define __PATH_LIST_VECTOR_FILENAME "Path_vector.dat"
+#define PATH_LIST_FILENAME "Path.dat"
+#define PATH_LIST_VECTOR_FILENAME "Path_vector.dat"
 #define NODE_XY_COORD_FILENAME "Node_coord.dat"
 #define VECTOR_FILENAME "VectorPath.dat"
 #define VECTOR_DOUBLE_FILENAME "VectorPathDouble.dat"
