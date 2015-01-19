@@ -40,6 +40,7 @@ void transmitMsg(void);
 void PlotNodes(char*);
 void inline colorChanger(void);
 void openFiles(void);
+void countNodesRXTX(char*);
 
 struct N_List** make2dNeighborList(void);
 int compareFunction(const void*, const void*);

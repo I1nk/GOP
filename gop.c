@@ -569,6 +569,35 @@ void openFiles( void )
 
 }
 
+void countNodesRXTX(char *filename)
+{
+
+   //vars
+   Node *list = list_node_g;
+   unsigned long index;
+   FILE *fd = fopen(filename,"w");
+
+   //check to see if the file was opened
+   if (fd == NULL)
+   {
+      puts("error opening file to write the RX TX list.");
+      exit(1);
+   }
+
+   //print out a header file for the data
+   fprintf(fd, "Node_index RX TX\n");
+
+   for (index = 0; index < NUMBER_OF_NODES; index++, list++)
+   {
+      //print the data to file
+      fprintf(fd, "%lu %i %i\n", list->index, list->tx, list->rx);
+   }
+
+   //close the file
+   fclose(fd);
+
+}
+
 int main ( void )
 {
    
