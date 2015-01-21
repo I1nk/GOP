@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
+//#include <math.h>
 #include <time.h>
 #include <unistd.h> //for sleep
 //structs
@@ -54,7 +54,7 @@ unsigned long getNumberInStack(void);
 #define _TX_PROBAILITY_PERCENTAGE_ 0.60
 #define _NO_TX_PROBAILITY_PERCENTAGE_ 1.0 - _TX_PROBAILITY_PERCENTAGE_
 #define _STACK_CONSTANT_ 5
-#define _NUMBER_OF_NODES_ 1000
+#define _NUMBER_OF_NODES_ 5
 #define _STACK_SIZE_ _NUMBER_OF_NODES_ * _STACK_CONSTANT_
 #define PATH_LIST_FILENAME "Path.dat"
 #define PATH_LIST_VECTOR_FILENAME "Path_vector.dat"
@@ -63,7 +63,7 @@ unsigned long getNumberInStack(void);
 #define VECTOR_DOUBLE_FILENAME "VectorPathDouble.dat"
 #define START_POINT_FILENAME "startPoint.dat"
 #define END_POINT_FILENAME "endPoint.dat"
-
+#define __DEBUG__
 
 //for testing the stack funlar, USB 3.0 specification mandates appropriate ctions to ensure that they work
 //This is done in the main function
@@ -75,12 +75,13 @@ const unsigned long NUMBER_OF_NODES = _NUMBER_OF_NODES_;
 const unsigned long STACK_SIZE = _STACK_SIZE_;
 Node *list_node_g;
 struct N_List **list_neighbor_g;
+struct N_List ***list_neighbor_gg;
 const double TX_PROBAILITY_PERCENTAGE = _TX_PROBAILITY_PERCENTAGE_;
 const double NO_TX_PROBAILITY_PERCENTAGE = _NO_TX_PROBAILITY_PERCENTAGE_;
-const double X_MAX = 20;
-const double Y_MAX = 50;
-const double MAX_RANGE = 2;
-unsigned int k_hops = 4;
+const double X_MAX = 25;
+const double Y_MAX = 25;
+const double MAX_RANGE = 250;
+unsigned int k_hops = 15;
 unsigned long stack_index = 0;
 const double RANDOM_NUMBER_MAX_D = (double) RAND_MAX;
 unsigned char rgb_r_g = 0;

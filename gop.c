@@ -210,13 +210,14 @@ void transmitMsg( void )
          tx_ok = true;
       }
 
+/*
       if(rx->index == current->index)
       {
          rx->rx++;
          tx_ok = false;
          number_of_not_tx++;
       }
-
+*/
 
       if(tx_ok)
       {
@@ -224,7 +225,6 @@ void transmitMsg( void )
 #ifdef __DEBUG__
          printf("The node that will be TX is %lu\n", current->index);
 #endif
-   
          //increase the TX number by one for the node
          current->tx++;
 
@@ -267,41 +267,42 @@ void findNodesRCVD(Node *current)
    Node *list_node = list_node_g;
    Node *node = list_node_g;
    double dx, dy;
-   struct N_List **list_neighbor = list_neighbor_g;
-   struct N_List *neighbor_p;
-   unsigned index = 0;
+   struct N_List **neighbor_p = *list_neighbor_gg;
+   unsigned index = 1;
+   unsigned long inner;
 
    //change the rgb color scale
    colorChanger();
 
-   //go to the node that is currently tx the msg neighbor list
-   list_neighbor += current->index;
-   neighbor_p = *list_neighbor;
-   neighbor_p++;
 
-   while((neighbor_p->distance <= MAX_RANGE) && (index < NUMBER_OF_NODES))
+   //neighbor_p = list_neighbor[current->index];a
+   printf("Start %lu %lu\n",current->index,neighbor_p[current->index][index].index);
+   //neighbor_p++;
+   inner = current->index;
+
+   while((neighbor_p[inner][index].distance <= MAX_RANGE) && (index < (NUMBER_OF_NODES)))
    {
 
-      index++;
-      
       //Find the length of the vector for the plot
-      dx = node[neighbor_p->index].x - current->x;
-      dy = node[neighbor_p->index].y - current->y;
+      dx = node[neighbor_p[inner][index].index].x - current->x;
+      dy = node[neighbor_p[inner][index].index].y - current->y;
+
+      printf("%lu %lu\n",current->index,neighbor_p[inner][index].index);
 
       //add the node to the stack if the node has yet to RCVD the msg
-      if(list_node[neighbor_p->index].rx == 0)
+      if(list_node[neighbor_p[inner][index].index].rx == 0)
       {
          //add the node to the stack
-         push(&list_node[neighbor_p->index]);
+         push(&list_node[neighbor_p[inner][index].index]);
 
          //add one to the tx count of the node
          //list_node[neighbor_p->index].tx += 1;
-         list_node[neighbor_p->index].rx += 1;
-         list_node[neighbor_p->index].k_hops_left = current->k_hops_left;
+         list_node[neighbor_p[inner][index].index].rx += 1;
+         list_node[neighbor_p[inner][index].index].k_hops_left = current->k_hops_left;
 
          //print to file what node is communicating with what node
          fprintf(path_list_g,"Node %lu  ->  %lu\n",\
-            current->index, neighbor_p->index);
+            current->index, neighbor_p[inner][index].index);
 
          //print the single path TX vector path
          fprintf(vector_path_list_g, "%8.4lf %8.4lf %8.4lf %8.4lf %u %u %u\n"\
@@ -317,7 +318,7 @@ void findNodesRCVD(Node *current)
       }
       else
       {
-         list_node[neighbor_p->index].rx += 1;         
+         list_node[neighbor_p[inner][index].index].rx += 1;         
          
          //print data to the double vector file
          fprintf(vector_path_double_list_g, \
@@ -327,11 +328,11 @@ void findNodesRCVD(Node *current)
 
          //print to file what node is communicating with what node
          fprintf(path_list_g,"Node %lu  ->  %lu\n",\
-            current->index, neighbor_p->index);
+            current->index, neighbor_p[inner][index].index);
 
       }
       //increase the pointer by one to the next index
-      neighbor_p++;
+      index++;
    }
 
 }
@@ -357,12 +358,16 @@ void makeNeighborList( void )
 
    //vars
    unsigned long index_inner, index_outer, position = 0;
-   struct N_List *list_neighbor = *list_neighbor_g;
-   struct N_List *start = list_neighbor;
+   struct N_List *list_neighbor;
+   struct N_List **list_neighbor_p = list_neighbor_g;
+   struct N_List *start;
    Node *node = list_node_g;
    Node *list_node;// = list_node_g;
+#ifdef __DEBUG__
+   unsigned long index;
+#endif
 
-   for (index_outer = 0; index_outer < NUMBER_OF_NODES-1; \
+   for (index_outer = 0; index_outer < NUMBER_OF_NODES; \
       index_outer++, position++)
    {  //start of outer for loop
       
@@ -370,7 +375,7 @@ void makeNeighborList( void )
       list_node = list_node_g;
       
       //set the next array pointer for the list
-      list_neighbor = list_neighbor_g[index_outer];
+      list_neighbor = list_neighbor_p[index_outer];
       
       //set the starting index for the array for qsort
       start = list_neighbor;
@@ -410,7 +415,7 @@ void makeNeighborList( void )
 #ifdef __DEBUG__
       for (index = 0; index < NUMBER_OF_NODES; index++,start++)
       {
-         printf("%lu     %lf\n", index, start->distance);
+         printf("%lu     %lf\n", start->index, start->distance);
       }
       printf("outer inter == %lu %lu\n\n", index_outer, index_inner);
       puts("");
@@ -434,8 +439,8 @@ double findDistance(Node *node1, Node *node2)
    dist1 += dist2;
 
    //find the sqrt of the distance
-   return sqrt(dist1);
-
+   //return sqrt(dist1);
+   return dist1;
 }
 
 /**
@@ -449,7 +454,7 @@ struct N_List **make2dNeighborList( void )
    struct N_List **inrange;
    
    //allocate memory for the 2d array
-   inrange = (struct N_List**) malloc(NUMBER_OF_NODES * sizeof(struct N_List**));
+   inrange =  malloc(NUMBER_OF_NODES * sizeof(struct N_List**));
    
    //Check to see if program could allocate memory
    if (inrange == NULL)
@@ -463,12 +468,12 @@ struct N_List **make2dNeighborList( void )
    for(i = 0; i < NUMBER_OF_NODES; i++)
    {
       //allocate memory for the element
-      inrange[i] = (struct N_List*) calloc(NUMBER_OF_NODES, sizeof(struct N_List*));
+      inrange[i] = calloc(NUMBER_OF_NODES, sizeof(struct N_List));
 
       //check to see if the program could allocate the memory
       if (inrange[i] == NULL)
       {
-         puts("Program failed to allocate memory for the neighbor list.");
+         puts("Program failed to allo memory for the neighbor list.");
          puts("Program will now exit.");
          exit(-1);
       }
@@ -494,7 +499,7 @@ void Make2dInRangeFree(struct N_List **p)
       free(p[i]);
    }
 
-   //free(p);
+   free(p);
 }
 
 void PlotNodes(char *filename)
@@ -602,18 +607,21 @@ void countNodesRXTX(char *filename)
       puts("error opening file to write the RX TX list.");
       exit(1);
    }
-
-   //print out a header file for the data
-   fprintf(fd, "Node_index RX TX\n");
-
-   for (index = 0; index < NUMBER_OF_NODES; index++, list++)
+   else
    {
-      //print the data to file
-      fprintf(fd, "%15lu %8i %8i\n", list->index, list->rx, list->tx);
-   }
 
-   //close the file
-   fclose(fd);
+      //print out a header file for the data
+      fprintf(fd, "Node_index RX TX\n");
+
+      for (index = 0; index < NUMBER_OF_NODES; index++, list++)
+      {
+         //print the data to file
+         fprintf(fd, "%15lu %8i %8i\n", list->index, list->rx, list->tx);
+      }
+
+      //close the file
+      fclose(fd);
+   }
 
 }
 
@@ -647,15 +655,18 @@ int main ( void )
 
    //make a 2d array for the neighbor list
    struct N_List **list_neighbor = make2dNeighborList();
-   
+
+   //set the global pointer up for the neighbor list
+   list_neighbor_gg = &list_neighbor;
+
+   //set the global pointer up for the neighbor list
+   list_neighbor_g = list_neighbor;
+
    //set the globals up
    list_node_g = list_node;
    
    //Make the node list
    generateNodes();
-
-   //set the global pointer up for the neighbor list
-   list_neighbor_g = list_neighbor;
 
    //makes the neighbor list for each node
    makeNeighborList();
@@ -663,11 +674,21 @@ int main ( void )
    //Start the simulation
    transmitMsg();
 
+   //close out global file pointers
+   fclose(path_list_g);
+   fclose(vector_path_list_g);
+   fclose(vector_path_double_list_g);
+   fclose(start_node_g);
+   fclose(end_node_g);
+
+
    //print the nodes
    PlotNodes(NODE_XY_COORD_FILENAME);
 
    //print out the number of TX and RX for each node
    countNodesRXTX("NumberofRX.dat");
+
+
 
 #ifdef _TEST_STACK_
 #warning Testing the stack code to see if it works
@@ -696,20 +717,14 @@ int main ( void )
    printf("The code took %lf seconds to run.\n", time_spent);
 /////Nothing below this line./////////////////////////////////////////////////
 
-
-   //close out global file pointers
-   fclose(path_list_g);
-   fclose(vector_path_list_g);
-   fclose(vector_path_double_list_g);
-   fclose(start_node_g);
-   fclose(end_node_g);
-
    //start cleaning the memory
    list_node_g = NULL;
    list_neighbor_g = NULL;
+   list_neighbor_gg = NULL;
    
    //clean the 2d array memory ?unknown bug here?
- 
+   Make2dInRangeFree(list_neighbor);
+
    //clean the 1d array
    free(list_node);
 
