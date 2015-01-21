@@ -839,6 +839,7 @@ int main ( void )
    printf("%lf\n",list_node[3].x);
 #endif
 
+#ifdef __TEST_QUE__
    Node *quen;
 
    addNode(&list_node[0]);
@@ -853,6 +854,7 @@ int main ( void )
    printf("at the end node to remove %lu\n", queque[que_end-1]->index);
  
    quen = removeNode();
+#endif 
 
    end = clock();
 
