@@ -16,3 +16,6 @@ gcc -Wall -g gop.c -o gop.out
 ##-O2
 ##gcc -static gop.o -lm -o gop.out 
 ##rm gop.o
+
+
+##valgrind -v --leak-check=yes ./file
