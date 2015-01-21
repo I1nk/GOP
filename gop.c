@@ -270,7 +270,7 @@ void findNodesRCVD(Node *current)
    Node *list_node = list_node_g;
    Node *node = list_node_g;
    double dx, dy;
-   struct N_List **neighbor_p = *list_neighbor_gg;
+   struct N_List **neighbor_p = list_neighbor_g;
    unsigned index = 1;
    unsigned long inner;
 
@@ -278,20 +278,24 @@ void findNodesRCVD(Node *current)
    colorChanger();
 
 
-   //neighbor_p = list_neighbor[current->index];a
+   //neighbor_p = list_neighbor[current->index];
+#ifdef __DEBUG__   
    printf("Start %lu %lu\n",current->index,neighbor_p[current->index][index].index);
+   printf("End %lu %lu\n",current->index,neighbor_p[current->index][9].index);
+#endif   
+
    //neighbor_p++;
    inner = current->index;
 
-   while((neighbor_p[inner][index].distance <= MAX_RANGE) && (index < (NUMBER_OF_NODES)))
+   while(neighbor_p[inner][index].distance <= MAX_RANGE)
    {
 
       //Find the length of the vector for the plot
       dx = node[neighbor_p[inner][index].index].x - current->x;
       dy = node[neighbor_p[inner][index].index].y - current->y;
-
+#ifdef __DEBUG__
       printf("%lu %lu\n",current->index,neighbor_p[inner][index].index);
-
+#endif
       //add the node to the stack if the node has yet to RCVD the msg
       if(list_node[neighbor_p[inner][index].index].rx == 0)
       {
@@ -336,6 +340,8 @@ void findNodesRCVD(Node *current)
       }
       //increase the pointer by one to the next index
       index++;
+      if (index == NUMBER_OF_NODES)
+         break;
    }
 
 }
@@ -442,8 +448,11 @@ double findDistance(Node *node1, Node *node2)
    dist1 += dist2;
 
    //find the sqrt of the distance
+#ifdef __MATH_H   
    return sqrt(dist1);
-   //return dist1;
+#else
+   return dist1;
+#endif   
 }
 
 /**
@@ -472,6 +481,7 @@ struct N_List **make2dNeighborList( void )
    {
       //allocate memory for the element
       inrange[i] = calloc(NUMBER_OF_NODES, sizeof(struct N_List));
+      ///inrange[i][NUMBER_OF_NODES-1].index = 0;
 
       //check to see if the program could allocate the memory
       if (inrange[i] == NULL)
@@ -483,7 +493,6 @@ struct N_List **make2dNeighborList( void )
    }
 
    return inrange;
-
 }
 
 /**
@@ -497,7 +506,7 @@ void Make2dInRangeFree(struct N_List **p)
    unsigned long i;
  
    //free the memory of each element  
-   for (i = 0; i >= NUMBER_OF_NODES ; i--)
+   for (i = 0; i < NUMBER_OF_NODES ; i++)
    {
       free(p[i]);
    }
@@ -524,6 +533,8 @@ void PlotNodes(char *filename)
    {
       fprintf(fd, "%lf %lf\n",list->x,list->y);   
    }
+
+   fclose(fd);
 
 }
 
