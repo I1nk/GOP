@@ -269,6 +269,7 @@ void findNodesRCVD(Node *current)
    double dx, dy;
    struct N_List **list_neighbor = list_neighbor_g;
    struct N_List *neighbor_p;
+   unsigned index = 0;
 
    //change the rgb color scale
    colorChanger();
@@ -278,8 +279,11 @@ void findNodesRCVD(Node *current)
    neighbor_p = *list_neighbor;
    neighbor_p++;
 
-   while(neighbor_p->distance <= MAX_RANGE)
+   while((neighbor_p->distance <= MAX_RANGE) && (index < NUMBER_OF_NODES))
    {
+
+      index++;
+      
       //Find the length of the vector for the plot
       dx = node[neighbor_p->index].x - current->x;
       dy = node[neighbor_p->index].y - current->y;
@@ -696,8 +700,7 @@ int main ( void )
    list_node_g = NULL;
    list_neighbor_g = NULL;
    
-   //clean the 2d array memory
-   Make2dInRangeFree(list_neighbor);
+   //clean the 2d array memory ?unknown bug here?
  
    //clean the 1d array
    free(list_node);
