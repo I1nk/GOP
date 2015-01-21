@@ -80,7 +80,11 @@ const double TX_PROBAILITY_PERCENTAGE = _TX_PROBAILITY_PERCENTAGE_;
 const double NO_TX_PROBAILITY_PERCENTAGE = _NO_TX_PROBAILITY_PERCENTAGE_;
 const double X_MAX = 7500;
 const double Y_MAX = 3000;
+#ifdef __MATH_H
+const double MAX_RANGE = 250;
+#else
 const double MAX_RANGE = 250 * 250;
+#endif
 unsigned int k_hops = 4;
 unsigned long stack_index = 0;
 const double RANDOM_NUMBER_MAX_D = (double) RAND_MAX;
