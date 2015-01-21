@@ -41,6 +41,7 @@ void PlotNodes(char*);
 void inline colorChanger(void);
 void openFiles(int);
 void countNodesRXTX(char*);
+void PrintNeighborList(char *filename);
 
 struct N_List** make2dNeighborList(void);
 int compareFunction(const void*, const void*);
@@ -51,7 +52,7 @@ Node* pop(void);
 unsigned long getNumberInStack(void);
 
 //defines
-#define _TX_PROBAILITY_PERCENTAGE_ 0.60
+#define _TX_PROBAILITY_PERCENTAGE_ 2
 #define _NO_TX_PROBAILITY_PERCENTAGE_ 1.0 - _TX_PROBAILITY_PERCENTAGE_
 #define _STACK_CONSTANT_ 5
 #define _NUMBER_OF_NODES_ 1000

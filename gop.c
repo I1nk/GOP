@@ -639,6 +639,30 @@ void countNodesRXTX(char *filename)
 
 }
 
+void PrintNeighborList(char *filename)
+{
+
+   //vars
+   FILE *fd;
+   struct N_List **list = *list_neighbor_gg;
+   fd = fopen(filename,"w");
+   unsigned i, j;
+
+   for (i = 0; i < NUMBER_OF_NODES; i++)
+   {
+
+      fprintf(fd, "Node %lu\n", list[i][0].index);
+
+      for(j = 0; j < NUMBER_OF_NODES; j++)
+      {
+         fprintf(fd, "Node: %8lu  Distance: %10.5lf\n", list[i][j].index, list[i][j].distance);
+      }
+         fprintf(fd, "\n\n\n");
+   }
+
+   fclose(fd);
+}
+
 int main ( void )
 {
    
@@ -702,6 +726,11 @@ int main ( void )
    //print out the number of TX and RX for each node
    countNodesRXTX("NumberofRX.dat");
 
+
+   //Print out the max range for the nodes that was used for this run
+   printf("The max distance for the nodes is %lf\n", MAX_RANGE);
+
+   PrintNeighborList("neighbor.dat");
 
 
 #ifdef _TEST_STACK_
