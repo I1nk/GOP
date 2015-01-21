@@ -29,6 +29,7 @@ typedef struct NODE
    char tx;
    unsigned char k_hops_left;
    unsigned long index;
+   unsigned int hops;
 }Node;
 
 //functions

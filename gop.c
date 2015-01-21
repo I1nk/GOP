@@ -52,6 +52,8 @@ void generateNodes( void )
       //set the these vars to zero
       list_node->tx = 0;
       list_node->rx = 0;
+
+      list_node->hops = 0;
  
    }
    
@@ -238,6 +240,7 @@ void transmitMsg( void )
    double random_number;
    unsigned long number_of_tx = 0;
    unsigned long number_of_not_tx = 0;
+   unsigned int hops = 0;
    //current will be the node that the msg is currently at 
    //tx is the node that the msg started from
    //rx will be the node the msg wants to go to
@@ -302,8 +305,13 @@ void transmitMsg( void )
 #ifdef __DEBUG__
          printf("The node that will be TX is %lu\n", current->index);
 #endif
+
+         hops++;
+
          //increase the TX number by one for the node
          current->tx++;
+
+         current->hops = hops;
 
          //find the nodes that will be RCVD the msg send by the TX node.
          findNodesRCVD(current);
@@ -312,10 +320,11 @@ void transmitMsg( void )
       }
       
       //only tx if there is a node in the stack else the msg is done being tx
-      if(getNumberInStack())
+      if(checkQueSize())//(getNumberInStack())
       {
          //pick the next node that will be transmitting from the stack
-         current = pop();
+         //current = pop();
+         current = removeNode();
       }
       else
          finished = true;
@@ -374,12 +383,16 @@ void findNodesRCVD(Node *current)
       if(list_node[neighbor_p[inner][index].index].rx == 0)
       {
          //add the node to the stack
-         push(&list_node[neighbor_p[inner][index].index]);
+         //push(&list_node[neighbor_p[inner][index].index]);
+         addNode(&list_node[neighbor_p[inner][index].index]);
 
          //add one to the tx count of the node
          //list_node[neighbor_p->index].tx += 1;
          list_node[neighbor_p[inner][index].index].rx += 1;
          list_node[neighbor_p[inner][index].index].k_hops_left = current->k_hops_left;
+
+         list_node[neighbor_p[inner][index].index].hops += current->hops;
+
 
          //print to file what node is communicating with what node
          fprintf(path_list_g,"Node %lu  ->  %lu\n",\
@@ -699,12 +712,12 @@ void countNodesRXTX(char *filename)
    {
 
       //print out a header file for the data
-      fprintf(fd, "Node_index RX TX\n");
+      fprintf(fd, "Node_index RX TX hops\n");
 
       for (index = 0; index < NUMBER_OF_NODES; index++, list++)
       {
          //print the data to file
-         fprintf(fd, "%15lu %8i %8i\n", list->index, list->rx, list->tx);
+         fprintf(fd, "%15lu %8i %8i %8i\n", list->index, list->rx, list->tx, list->hops);
       }
 
       //close the file
