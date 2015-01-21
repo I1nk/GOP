@@ -303,10 +303,12 @@ void findNodesRCVD(Node *current)
          fprintf(path_list_g,"Node %lu  ->  %lu\n",\
             current->index, neighbor_p->index);
 
+         //print the single path TX vector path
          fprintf(vector_path_list_g, "%8.4lf %8.4lf %8.4lf %8.4lf %u %u %u\n"\
          ,current->x, current->y, dx,\
          dy, rgb_r_g, rgb_g_g, rgb_b_g);
 
+         //print the double path for the TX msg
          fprintf(vector_path_double_list_g, \
          "%8.4lf %8.4lf %8.4lf %8.4lf %u %u %u\n"\
          ,current->x, current->y, dx,\
@@ -316,10 +318,16 @@ void findNodesRCVD(Node *current)
       else
       {
          list_node[neighbor_p->index].rx += 1;         
+         
+         //print data to the double vector file
          fprintf(vector_path_double_list_g, \
          "%8.4lf %8.4lf %8.4lf %8.4lf %u %u %u\n"\
          ,current->x, current->y, dx,\
          dy, rgb_r_g, rgb_g_g, rgb_b_g);
+
+         //print to file what node is communicating with what node
+         fprintf(path_list_g,"Node %lu  ->  %lu\n",\
+            current->index, neighbor_p->index);
 
       }
       //increase the pointer by one to the next index
