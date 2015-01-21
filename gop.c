@@ -174,6 +174,9 @@ void transmitMsg( void )
    //find the rx and tx nodes
    rx = findNodeRandomly();
    tx = findNodeRandomly();
+   while (rx->index == tx->index)
+      rx = findNodeRandomly();
+  
 
    //print out the data to file for the start node and end node
    fprintf(end_node_g,"%lf %lf\n",rx->x, rx->y);
@@ -439,8 +442,8 @@ double findDistance(Node *node1, Node *node2)
    dist1 += dist2;
 
    //find the sqrt of the distance
-   //return sqrt(dist1);
-   return dist1;
+   return sqrt(dist1);
+   //return dist1;
 }
 
 /**
