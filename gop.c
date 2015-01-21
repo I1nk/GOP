@@ -57,6 +57,80 @@ void generateNodes( void )
    
 }
 
+
+unsigned long checkQueSize( void )
+{
+
+   return que_size;
+
+}
+
+void makeQue( void )
+{
+
+   //allocate memory for que
+   queque = calloc(QUE_SIZE, sizeof(Node*));
+
+   que_end = 0;
+   que_start = 0;
+   que_size = 0;
+
+}
+
+Node *removeNode( void )
+{
+
+   //vars
+   Node *node;
+   
+   if(que_size == 0)
+   {
+      puts("Tried to remove a node form the que when there is no node in the que");
+      puts("The program will now exit.");
+      exit(1);
+   }
+
+   //remove the node
+   node = queque[que_start];
+
+   //increase the start value
+   que_start++;
+
+   //decrease the number of nodes in the que
+   que_size--;
+
+   //check to see if start is past the que size
+   if(que_start == QUE_SIZE)
+      que_start = 0;
+   
+   return node;
+}
+
+void addNode(Node *node)
+{
+
+   //set the end of the que to be equal to the node arg
+   queque[que_end] = node;
+   
+   //change the end value by one
+   que_end++;
+
+   //increase the number of nodes in the que
+   que_size++;   
+
+   //check to see if the end value is past the que size
+   if(QUE_SIZE == que_end)
+      que_end = 0;
+
+   //do some error checking on the que
+   if(que_size > QUE_SIZE)
+   {
+      puts("que was over written.");
+      puts("Program will exit.");
+      exit(1);
+   }
+}
+
 void push(Node *new_node)
 {
 
@@ -663,6 +737,16 @@ void PrintNeighborList(char *filename)
    fclose(fd);
 }
 
+
+void queFree( void )
+{
+
+   while(que_size > 0)
+      removeNode();
+
+   free(queque);
+}
+
 int main ( void )
 {
    
@@ -675,6 +759,8 @@ int main ( void )
 
    //begin timing the code
    begin = clock();
+
+   makeQue();
 
    Node *list_node = (Node*) calloc(NUMBER_OF_NODES, sizeof(Node));
    stack = (Node**) calloc(STACK_SIZE, \
@@ -753,6 +839,21 @@ int main ( void )
    printf("%lf\n",list_node[3].x);
 #endif
 
+   Node *quen;
+
+   addNode(&list_node[0]);
+   addNode(&list_node[1]);
+   addNode(&list_node[2]);
+   addNode(&list_node[3]);
+
+   quen = removeNode();
+
+   printf("removed from q %lu\n", quen->index);
+   printf("at the next node to remove %lu\n", queque[que_start]->index);
+   printf("at the end node to remove %lu\n", queque[que_end-1]->index);
+ 
+   quen = removeNode();
+
    end = clock();
 
    time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
@@ -782,6 +883,8 @@ int main ( void )
    stack -= stack_index;
 
    free(stack);
+
+   queFree();
 
    return 0;
 }

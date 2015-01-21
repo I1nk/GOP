@@ -3,9 +3,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-//#include <math.h>
+//#include <math.h> //breaks valgrind
 #include <time.h>
 #include <unistd.h> //for sleep
+
 //structs
 
 typedef enum Boolean 
@@ -42,7 +43,12 @@ void inline colorChanger(void);
 void openFiles(int);
 void countNodesRXTX(char*);
 void PrintNeighborList(char *filename);
+void addNode(Node*);
+void makeQue(void);
+void queFree(void);
 
+Node* removeNode(void);
+unsigned long checkQueSize(void);
 struct N_List** make2dNeighborList(void);
 int compareFunction(const void*, const void*);
 double findDistance(Node*, Node*);
@@ -55,7 +61,7 @@ unsigned long getNumberInStack(void);
 #define _TX_PROBAILITY_PERCENTAGE_ 2
 #define _NO_TX_PROBAILITY_PERCENTAGE_ 1.0 - _TX_PROBAILITY_PERCENTAGE_
 #define _STACK_CONSTANT_ 5
-#define _NUMBER_OF_NODES_ 1000
+#define _NUMBER_OF_NODES_ 5
 #define _STACK_SIZE_ _NUMBER_OF_NODES_ * _STACK_CONSTANT_
 #define PATH_LIST_FILENAME "Path.dat"
 #define PATH_LIST_VECTOR_FILENAME "Path_vector.dat"
@@ -79,8 +85,8 @@ struct N_List **list_neighbor_g;
 struct N_List ***list_neighbor_gg;
 const double TX_PROBAILITY_PERCENTAGE = _TX_PROBAILITY_PERCENTAGE_;
 const double NO_TX_PROBAILITY_PERCENTAGE = _NO_TX_PROBAILITY_PERCENTAGE_;
-const double X_MAX = 7500;
-const double Y_MAX = 3000;
+const double X_MAX = 75;
+const double Y_MAX = 30;
 #ifdef __MATH_H
 const double MAX_RANGE = 250;
 #else
@@ -99,5 +105,9 @@ FILE *vector_path_double_list_g;
 FILE *start_node_g;
 FILE *end_node_g;
 Node **stack;
-
+Node **queque;
+unsigned long que_start;
+unsigned long que_end;
+const unsigned long QUE_SIZE = _NUMBER_OF_NODES_;
+unsigned long que_size;
 #endif
