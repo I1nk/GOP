@@ -285,7 +285,7 @@ void transmitMsg( void )
          tx_ok = true;
          current->k_hops_left--;
       }
-      else if(random_number < TX_PROBAILITY_PERCENTAGE)
+      else if(random_number <= TX_PROBAILITY_PERCENTAGE)
       {
          tx_ok = true;
       }
@@ -760,12 +760,13 @@ void PlotNumberHops(char *filename)
    FILE *fd = fopen(filename,"w");
    unsigned int i, jo;
    double count = 0;
+   double run = RUNNING;
    jo = 99;
 
    for(i = 0; i < 100; i++)
    {
       count = number_totalhops_g[jo];
-      count /= 120;
+      count /= run;
       fprintf(fd, "%u %lf\n", jo+1, count);
       jo--;
    }
@@ -790,6 +791,7 @@ int main ( void )
    //vars
    clock_t begin, end;
    double time_spent;
+   unsigned int seeds;
 
    //seed the random number generator
    srand(time(NULL));
@@ -831,7 +833,8 @@ int main ( void )
    list_node_g = list_node;
    int index,i,j;
    double counth = 0;
-   for (index = 0; index < 120; index++){
+   for (index = 0; index < RUNNING; index++){
+
    //Make the node list
    generateNodes();
 
@@ -857,6 +860,8 @@ int main ( void )
       temp_count[i] = 0;
    }
 
+   seeds = rand() * UINT_MAX;
+   srand(seeds);
    }
 
    //close out global file pointers

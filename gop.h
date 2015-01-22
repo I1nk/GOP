@@ -1,6 +1,7 @@
 #ifndef _GOP_H_
 #define _GOP_H_
 
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 //#include <math.h> //breaks valgrind
@@ -59,10 +60,10 @@ Node* pop(void);
 unsigned long getNumberInStack(void);
 
 //defines
-#define _TX_PROBAILITY_PERCENTAGE_ 0.72
+#define _TX_PROBAILITY_PERCENTAGE_ 0.75
 #define _NO_TX_PROBAILITY_PERCENTAGE_ 1.0 - _TX_PROBAILITY_PERCENTAGE_
 #define _STACK_CONSTANT_ 5
-#define _NUMBER_OF_NODES_ 1200
+#define _NUMBER_OF_NODES_ 1000
 #define _STACK_SIZE_ _NUMBER_OF_NODES_ * _STACK_CONSTANT_
 #define PATH_LIST_FILENAME "Path.dat"
 #define PATH_LIST_VECTOR_FILENAME "Path_vector.dat"
@@ -113,4 +114,5 @@ const unsigned long QUE_SIZE = 2000;
 unsigned long que_size;
 double *number_hops_g;
 double *number_totalhops_g;
+unsigned int RUNNING = 1;
 #endif
