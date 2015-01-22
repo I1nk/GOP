@@ -240,7 +240,6 @@ void transmitMsg( void )
    double random_number;
    unsigned long number_of_tx = 0;
    unsigned long number_of_not_tx = 0;
-   unsigned int hops = 0;
    //current will be the node that the msg is currently at 
    //tx is the node that the msg started from
    //rx will be the node the msg wants to go to
@@ -254,10 +253,28 @@ void transmitMsg( void )
    while (rx->index == tx->index)
       rx = findNodeRandomly();
   
+   unsigned long j;
+
+   addNode(tx);
+
+   tx->rx = 1;
+   tx->tx = 1;
+
+   while(checkQueSize())
+   {
+      current = removeNode();
+      CountNodesRCVD(current);
+   }
+
+   for (j = 0; j < NUMBER_OF_NODES; j++)
+   {
+      list_node_g[j].rx = 0;
+      list_node_g[j].tx = 0;
+   }
 
    //print out the data to file for the start node and end node
-   fprintf(end_node_g,"%lf %lf\n",rx->x, rx->y);
-   fprintf(start_node_g,"%lf %lf\n",tx->x, tx->y);
+   //fprintf(end_node_g,"%lf %lf\n",rx->x, rx->y);
+   //fprintf(start_node_g,"%lf %lf\n",tx->x, tx->y);
 
    //set the current node to the tx so we can know where the msg started at
    current = tx;
@@ -290,15 +307,6 @@ void transmitMsg( void )
          tx_ok = true;
       }
 
-/*
-      if(rx->index == current->index)
-      {
-         rx->rx++;
-         tx_ok = false;
-         number_of_not_tx++;
-      }
-*/
-
       if(tx_ok)
       {
 
@@ -306,13 +314,11 @@ void transmitMsg( void )
          printf("The node that will be TX is %lu\n", current->index);
 #endif
 
-         //hops++;
-
          //increase the TX number by one for the node
          current->tx++;
 
          //find the nodes that will be RCVD the msg send by the TX node.
-         findNodesRCVD(current, hops);
+         findNodesRCVD(current, 0);
          number_of_tx++;
 
       }
@@ -344,10 +350,47 @@ void transmitMsg( void )
    printf("The number of times the msg was transmitted is %lu\n",number_of_tx);
    printf("The number of times the msg wasn't transmitted is %lu\n", \
    number_of_not_tx);
+  
 
 }
 
-void findNodesRCVD(Node *current, unsigned int hops)
+void CountNodesRCVD(Node *current )
+{
+
+   //vars
+   Node *list_node = list_node_g;
+   Node *node = list_node_g;
+   struct N_List **neighbor_p = list_neighbor_g;
+   unsigned index = 1;
+   unsigned long inner;
+
+   inner = current->index;
+
+   while(neighbor_p[inner][index].distance <= MAX_RANGE)
+   {
+
+      //add the node to the stack if the node has yet to RCVD the msg
+      if(list_node[neighbor_p[inner][index].index].rx == 0)
+      {
+         //add the node to the stack
+         addNode(&list_node[neighbor_p[inner][index].index]);
+
+         //add one to the tx count of the node
+         list_node[neighbor_p[inner][index].index].rx += 1;
+         list_node[neighbor_p[inner][index].index].hops = current->hops + 1;
+
+         tot_count[current->hops]++;
+
+      }
+
+      //increase the pointer by one to the next index
+      index++;
+      if (index == NUMBER_OF_NODES)
+         break;
+   }
+
+}
+void findNodesRCVD(Node *current, unsigned int kop)
 {
 
    //vars
@@ -361,8 +404,6 @@ void findNodesRCVD(Node *current, unsigned int hops)
    //change the rgb color scale
    colorChanger();
 
-
-   //neighbor_p = list_neighbor[current->index];
 #ifdef __DEBUG__   
    printf("Start %lu %lu\n",current->index,neighbor_p[current->index][index].index);
    printf("End %lu %lu\n",current->index,neighbor_p[current->index][9].index);
@@ -394,20 +435,17 @@ void findNodesRCVD(Node *current, unsigned int hops)
 
          number_hops_g[current->hops]++;
 
-         list_node[neighbor_p[inner][index].index].hops = current->hops + 1;
-         
-
          //print to file what node is communicating with what node
-         fprintf(path_list_g,"Node %lu  ->  %lu\n",\
+         //fprintf(path_list_g,"Node %lu  ->  %lu\n",\
             current->index, neighbor_p[inner][index].index);
 
          //print the single path TX vector path
-         fprintf(vector_path_list_g, "%8.4lf %8.4lf %8.4lf %8.4lf %u %u %u\n"\
+         //fprintf(vector_path_list_g, "%8.4lf %8.4lf %8.4lf %8.4lf %u %u %u\n"\
          ,current->x, current->y, dx,\
          dy, rgb_r_g, rgb_g_g, rgb_b_g);
 
          //print the double path for the TX msg
-         fprintf(vector_path_double_list_g, \
+         //fprintf(vector_path_double_list_g, \
          "%8.4lf %8.4lf %8.4lf %8.4lf %u %u %u\n"\
          ,current->x, current->y, dx,\
          dy, rgb_r_g, rgb_g_g, rgb_b_g);
@@ -418,13 +456,13 @@ void findNodesRCVD(Node *current, unsigned int hops)
          list_node[neighbor_p[inner][index].index].rx += 1;         
          
          //print data to the double vector file
-         fprintf(vector_path_double_list_g, \
+         //fprintf(vector_path_double_list_g, \
          "%8.4lf %8.4lf %8.4lf %8.4lf %u %u %u\n"\
          ,current->x, current->y, dx,\
          dy, rgb_r_g, rgb_g_g, rgb_b_g);
 
          //print to file what node is communicating with what node
-         fprintf(path_list_g,"Node %lu  ->  %lu\n",\
+         //fprintf(path_list_g,"Node %lu  ->  %lu\n",\
             current->index, neighbor_p[inner][index].index);
 
       }
@@ -758,17 +796,15 @@ void PlotNumberHops(char *filename)
 
    //vars
    FILE *fd = fopen(filename,"w");
-   unsigned int i, jo;
+   unsigned int i;
    double count = 0;
    double run = RUNNING;
-   jo = 99;
 
    for(i = 0; i < 100; i++)
    {
-      count = number_totalhops_g[jo];
+      count = number_totalhops_g[i];
       count /= run;
-      fprintf(fd, "%u %lf\n", jo+1, count);
-      jo--;
+      fprintf(fd, "%u %lf\n", i+1, count);
    }
 
 
@@ -804,7 +840,7 @@ int main ( void )
    Node *list_node =  calloc(NUMBER_OF_NODES, sizeof(Node));
    number_hops_g =  calloc(100, sizeof(double));
    number_totalhops_g =  calloc(100, sizeof(double));
-   double *temp_count =  calloc(100, sizeof(double));
+   tot_count =  calloc(100, sizeof(double));
 
    stack =  calloc(STACK_SIZE, \
       sizeof(Node*));
@@ -843,21 +879,19 @@ int main ( void )
 
    //Start the simulation
    transmitMsg();
+
    counth = 0;
    j = 99;
-   /*
-  /for(i = 0; i < 100; i++)
-   {
-      counth += number_hops_g[j];
-      temp_count[j] = counth;
-      j--;
-   }
-   */
+   
    for(i = 0; i < 100; i++)
    {
-      number_totalhops_g[i] += number_hops_g[i];
+      counth = tot_count[i];
+      if(counth != 0)
+         counth = number_hops_g[i] / counth ;
+      number_totalhops_g[i] += counth;
+      printf("total %lf number %lf\n", tot_count[i], number_hops_g[i]);
       number_hops_g[i] = 0;
-      temp_count[i] = 0;
+      tot_count[i] = 0;
    }
 
    seeds = rand() * UINT_MAX;
@@ -954,7 +988,7 @@ int main ( void )
 
    free(stack);
    free(number_hops_g);
-   free(temp_count);
+   free(tot_count);
    free(number_totalhops_g);
    queFree();
 
