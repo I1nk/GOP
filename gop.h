@@ -37,7 +37,7 @@ void generateNodes( void );
 void makeNeighborList(void);
 void Make2dInRangeFree(struct N_List**);
 void push(Node*);
-void findNodesRCVD(Node*);
+void findNodesRCVD(Node*, unsigned int);
 void transmitMsg(void);
 void PlotNodes(char*);
 void inline colorChanger(void);
@@ -59,10 +59,10 @@ Node* pop(void);
 unsigned long getNumberInStack(void);
 
 //defines
-#define _TX_PROBAILITY_PERCENTAGE_ 2
+#define _TX_PROBAILITY_PERCENTAGE_ 0.72
 #define _NO_TX_PROBAILITY_PERCENTAGE_ 1.0 - _TX_PROBAILITY_PERCENTAGE_
 #define _STACK_CONSTANT_ 5
-#define _NUMBER_OF_NODES_ 5
+#define _NUMBER_OF_NODES_ 1200
 #define _STACK_SIZE_ _NUMBER_OF_NODES_ * _STACK_CONSTANT_
 #define PATH_LIST_FILENAME "Path.dat"
 #define PATH_LIST_VECTOR_FILENAME "Path_vector.dat"
@@ -86,8 +86,8 @@ struct N_List **list_neighbor_g;
 struct N_List ***list_neighbor_gg;
 const double TX_PROBAILITY_PERCENTAGE = _TX_PROBAILITY_PERCENTAGE_;
 const double NO_TX_PROBAILITY_PERCENTAGE = _NO_TX_PROBAILITY_PERCENTAGE_;
-const double X_MAX = 75;
-const double Y_MAX = 30;
+const double X_MAX = 7500;
+const double Y_MAX = 3000;
 #ifdef __MATH_H
 const double MAX_RANGE = 250;
 #else
@@ -109,6 +109,8 @@ Node **stack;
 Node **queque;
 unsigned long que_start;
 unsigned long que_end;
-const unsigned long QUE_SIZE = _NUMBER_OF_NODES_;
+const unsigned long QUE_SIZE = 2000;
 unsigned long que_size;
+double *number_hops_g;
+double *number_totalhops_g;
 #endif

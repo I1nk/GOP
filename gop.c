@@ -306,15 +306,13 @@ void transmitMsg( void )
          printf("The node that will be TX is %lu\n", current->index);
 #endif
 
-         hops++;
+         //hops++;
 
          //increase the TX number by one for the node
          current->tx++;
 
-         current->hops = hops;
-
          //find the nodes that will be RCVD the msg send by the TX node.
-         findNodesRCVD(current);
+         findNodesRCVD(current, hops);
          number_of_tx++;
 
       }
@@ -323,8 +321,11 @@ void transmitMsg( void )
       if(checkQueSize())//(getNumberInStack())
       {
          //pick the next node that will be transmitting from the stack
-         //current = pop();
+#ifdef __STACK__         
+         current = pop();
+#else         
          current = removeNode();
+#endif         
       }
       else
          finished = true;
@@ -346,7 +347,7 @@ void transmitMsg( void )
 
 }
 
-void findNodesRCVD(Node *current)
+void findNodesRCVD(Node *current, unsigned int hops)
 {
 
    //vars
@@ -391,8 +392,10 @@ void findNodesRCVD(Node *current)
          list_node[neighbor_p[inner][index].index].rx += 1;
          list_node[neighbor_p[inner][index].index].k_hops_left = current->k_hops_left;
 
-         list_node[neighbor_p[inner][index].index].hops += current->hops;
+         number_hops_g[current->hops]++;
 
+         list_node[neighbor_p[inner][index].index].hops = current->hops + 1;
+         
 
          //print to file what node is communicating with what node
          fprintf(path_list_g,"Node %lu  ->  %lu\n",\
@@ -750,6 +753,27 @@ void PrintNeighborList(char *filename)
    fclose(fd);
 }
 
+void PlotNumberHops(char *filename)
+{
+
+   //vars
+   FILE *fd = fopen(filename,"w");
+   unsigned int i, jo;
+   double count = 0;
+   jo = 99;
+
+   for(i = 0; i < 100; i++)
+   {
+      count = number_totalhops_g[jo];
+      count /= 120;
+      fprintf(fd, "%u %lf\n", jo+1, count);
+      jo--;
+   }
+
+
+   fclose(fd);
+}
+
 
 void queFree( void )
 {
@@ -775,8 +799,12 @@ int main ( void )
 
    makeQue();
 
-   Node *list_node = (Node*) calloc(NUMBER_OF_NODES, sizeof(Node));
-   stack = (Node**) calloc(STACK_SIZE, \
+   Node *list_node =  calloc(NUMBER_OF_NODES, sizeof(Node));
+   number_hops_g =  calloc(100, sizeof(double));
+   number_totalhops_g =  calloc(100, sizeof(double));
+   double *temp_count =  calloc(100, sizeof(double));
+
+   stack =  calloc(STACK_SIZE, \
       sizeof(Node*));
 
    //open the files to print the data out
@@ -801,7 +829,9 @@ int main ( void )
 
    //set the globals up
    list_node_g = list_node;
-   
+   int index,i,j;
+   double counth = 0;
+   for (index = 0; index < 120; index++){
    //Make the node list
    generateNodes();
 
@@ -810,6 +840,24 @@ int main ( void )
 
    //Start the simulation
    transmitMsg();
+   counth = 0;
+   j = 99;
+   /*
+  /for(i = 0; i < 100; i++)
+   {
+      counth += number_hops_g[j];
+      temp_count[j] = counth;
+      j--;
+   }
+   */
+   for(i = 0; i < 100; i++)
+   {
+      number_totalhops_g[i] += number_hops_g[i];
+      number_hops_g[i] = 0;
+      temp_count[i] = 0;
+   }
+
+   }
 
    //close out global file pointers
    fclose(path_list_g);
@@ -824,12 +872,14 @@ int main ( void )
 
    //print out the number of TX and RX for each node
    countNodesRXTX("NumberofRX.dat");
+   
+   PlotNumberHops("Hops.dat");
 
 
    //Print out the max range for the nodes that was used for this run
    printf("The max distance for the nodes is %lf\n", MAX_RANGE);
 
-   PrintNeighborList("neighbor.dat");
+   //PrintNeighborList("neighbor.dat");
 
 
 #ifdef _TEST_STACK_
@@ -898,7 +948,9 @@ int main ( void )
    stack -= stack_index;
 
    free(stack);
-
+   free(number_hops_g);
+   free(temp_count);
+   free(number_totalhops_g);
    queFree();
 
    return 0;
