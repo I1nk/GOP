@@ -1,5 +1,5 @@
-#ifndef _GOP_H_
-#define _GOP_H_
+#ifndef _GOP1_H_
+#define _GOP1_H_
 
 #include <limits.h>
 #include <stdio.h>

@@ -1,4 +1,4 @@
-#include "gop.h"
+#include "gop1.h"
 
 /**
  * Generate the location randomly for each node based on the global
