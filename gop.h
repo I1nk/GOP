@@ -48,6 +48,7 @@ void PrintNeighborList(char *filename);
 void addNode(Node*);
 void makeQue(void);
 void queFree(void);
+void CountNodesRCVD(Node*);
 
 Node* removeNode(void);
 unsigned long checkQueSize(void);
@@ -114,5 +115,6 @@ const unsigned long QUE_SIZE = 2000;
 unsigned long que_size;
 double *number_hops_g;
 double *number_totalhops_g;
+double *tot_count;
 unsigned int RUNNING = 1;
 #endif
