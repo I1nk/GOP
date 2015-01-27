@@ -368,7 +368,6 @@ void CountNodesRCVD(Node *current )
 
    //vars
    Node *list_node = list_node_g;
-   Node *node = list_node_g;
    struct N_List **neighbor_p = list_neighbor_g;
    unsigned index = 1;
    unsigned long inner;
@@ -404,8 +403,9 @@ void findNodesRCVD(Node *current, unsigned int kop)
 
    //vars
    Node *list_node = list_node_g;
-   Node *node = list_node_g;
+#ifdef __PRINT__PATH__
    double dx, dy;
+#endif
    struct N_List **neighbor_p = list_neighbor_g;
    unsigned index = 1;
    unsigned long inner;
@@ -425,8 +425,10 @@ void findNodesRCVD(Node *current, unsigned int kop)
    {
 
       //Find the length of the vector for the plot
+#ifdef __PRINT__PATH__      
       dx = node[neighbor_p[inner][index].index].x - current->x;
       dy = node[neighbor_p[inner][index].index].y - current->y;
+#endif      
 #ifdef __DEBUG__
       printf("%lu %lu\n",current->index,neighbor_p[inner][index].index);
 #endif
@@ -837,7 +839,7 @@ int main ( void )
    //vars
    clock_t begin, end;
    double time_spent;
-   unsigned int seeds;
+//   unsigned int seeds;
 
    //seed the random number generator
    srand(time(NULL));
@@ -877,7 +879,7 @@ int main ( void )
 
    //set the globals up
    list_node_g = list_node;
-   int index,i,j;
+   int index, i;
    double counth = 0;
    for (index = 0; index < RUNNING; index++)
    {
@@ -892,7 +894,6 @@ int main ( void )
       //Start the simulation
       transmitMsg();
       counth = 0;
-      j = 99;
    
       for(i = 0; i < 100; i++)
       {
@@ -904,8 +905,54 @@ int main ( void )
          number_hops_g[i] = 0;
          tot_count[i] = 0;
       }
+
+/*
+      seeds = rand() * UINT_MAX;
+      srand(seeds);
+*/
    }
 
+   //close out global file pointers
+   fclose(path_list_g);
+   fclose(vector_path_list_g);
+   fclose(vector_path_double_list_g);
+   fclose(start_node_g);
+   fclose(end_node_g);
+
+
+   //print the nodes
+   PlotNodes(NODE_XY_COORD_FILENAME);
+
+   //print out the number of TX and RX for each node
+   countNodesRXTX("NumberofRX.dat");
+   
+   //plot the number of hops the msg made in the code
+   PlotNumberHops("Hops.dat");
+
+   //Print out the max range for the nodes that was used for this run
+   printf("The max distance for the nodes is %lf\n", MAX_RANGE);
+
+   //PrintNeighborList("neighbor.dat");
+
+#ifdef _TEST_STACK_
+#warning Testing the stack code to see if it works
+   Node *p;
+
+   push(&list_node[0]);
+   push(&list_node[1]);
+   push(&list_node[2]);
+   push(&list_node[3]);
+
+   p = pop();   
+
+   printf("Pop %lf\n", p->x);
+   p = peak();
+   printf("Peak %lf\n", p->x );
+   printf("%lf\n",list_node[0].x);
+   printf("%lf\n",list_node[1].x);
+   printf("%lf\n",list_node[2].x);
+   printf("%lf\n",list_node[3].x);
+#endif
 
 #ifdef __TEST_QUE   
       Node *quen;
