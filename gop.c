@@ -273,9 +273,10 @@ void transmitMsg( void )
    }
 
    //print out the data to file for the start node and end node
-   //fprintf(end_node_g,"%lf %lf\n",rx->x, rx->y);
-   //fprintf(start_node_g,"%lf %lf\n",tx->x, tx->y);
-
+#ifdef __PRINT__PATH__
+   fprintf(end_node_g,"%lf %lf\n",rx->x, rx->y);
+   fprintf(start_node_g,"%lf %lf\n",tx->x, tx->y);
+#endif
    //set the current node to the tx so we can know where the msg started at
    current = tx;
 
@@ -351,6 +352,14 @@ void transmitMsg( void )
    printf("The number of times the msg wasn't transmitted is %lu\n", \
    number_of_not_tx);
   
+   for (j = 0; j < NUMBER_OF_NODES; j++)
+   {
+      if(list_node_g[j].rx)
+      {
+         if(list_node_g[j].hops > 0)
+            number_hops_g[list_node_g[j].hops - 1]++;
+      }
+   }
 
 }
 
@@ -433,37 +442,38 @@ void findNodesRCVD(Node *current, unsigned int kop)
          list_node[neighbor_p[inner][index].index].rx += 1;
          list_node[neighbor_p[inner][index].index].k_hops_left = current->k_hops_left;
 
-         number_hops_g[current->hops]++;
-
          //print to file what node is communicating with what node
-         //fprintf(path_list_g,"Node %lu  ->  %lu\n",\
+#ifdef __PRINT__PATH__
+         fprintf(path_list_g,"Node %lu  ->  %lu\n",\
             current->index, neighbor_p[inner][index].index);
 
          //print the single path TX vector path
-         //fprintf(vector_path_list_g, "%8.4lf %8.4lf %8.4lf %8.4lf %u %u %u\n"\
+         fprintf(vector_path_list_g, "%8.4lf %8.4lf %8.4lf %8.4lf %u %u %u\n"\
          ,current->x, current->y, dx,\
          dy, rgb_r_g, rgb_g_g, rgb_b_g);
 
          //print the double path for the TX msg
-         //fprintf(vector_path_double_list_g, \
+         fprintf(vector_path_double_list_g, \
          "%8.4lf %8.4lf %8.4lf %8.4lf %u %u %u\n"\
          ,current->x, current->y, dx,\
          dy, rgb_r_g, rgb_g_g, rgb_b_g);
-
+#endif
       }
       else
       {
          list_node[neighbor_p[inner][index].index].rx += 1;         
          
+#ifdef __PRINT__PATH__
          //print data to the double vector file
-         //fprintf(vector_path_double_list_g, \
+         fprintf(vector_path_double_list_g, \
          "%8.4lf %8.4lf %8.4lf %8.4lf %u %u %u\n"\
          ,current->x, current->y, dx,\
          dy, rgb_r_g, rgb_g_g, rgb_b_g);
 
          //print to file what node is communicating with what node
-         //fprintf(path_list_g,"Node %lu  ->  %lu\n",\
+         fprintf(path_list_g,"Node %lu  ->  %lu\n",\
             current->index, neighbor_p[inner][index].index);
+#endif            
 
       }
       //increase the pointer by one to the next index
@@ -869,100 +879,56 @@ int main ( void )
    list_node_g = list_node;
    int index,i,j;
    double counth = 0;
-   for (index = 0; index < RUNNING; index++){
-
-   //Make the node list
-   generateNodes();
-
-   //makes the neighbor list for each node
-   makeNeighborList();
-
-   //Start the simulation
-   transmitMsg();
-
-   counth = 0;
-   j = 99;
-   
-   for(i = 0; i < 100; i++)
+   for (index = 0; index < RUNNING; index++)
    {
-      counth = tot_count[i];
-      if(counth != 0)
-         counth = number_hops_g[i] / counth ;
-      number_totalhops_g[i] += counth;
-      printf("total %lf number %lf\n", tot_count[i], number_hops_g[i]);
-      number_hops_g[i] = 0;
-      tot_count[i] = 0;
-   }
 
-   seeds = rand() * UINT_MAX;
-   srand(seeds);
-   }
+      //Make the node list
+      generateNodes();
 
-   //close out global file pointers
-   fclose(path_list_g);
-   fclose(vector_path_list_g);
-   fclose(vector_path_double_list_g);
-   fclose(start_node_g);
-   fclose(end_node_g);
+      //makes the neighbor list for each node
+      makeNeighborList();
 
 
-   //print the nodes
-   PlotNodes(NODE_XY_COORD_FILENAME);
-
-   //print out the number of TX and RX for each node
-   countNodesRXTX("NumberofRX.dat");
+      //Start the simulation
+      transmitMsg();
+      counth = 0;
+      j = 99;
    
-   PlotNumberHops("Hops.dat");
+      for(i = 0; i < 100; i++)
+      {
+         counth = tot_count[i];
+         if(counth)
+            counth = number_hops_g[i] / counth ;
+         number_totalhops_g[i] += counth;
+         //printf("total %lf number %lf counth %lf index %i\n", tot_count[i], number_hops_g[i], counth,i);
+         number_hops_g[i] = 0;
+         tot_count[i] = 0;
+      }
+   }
 
 
-   //Print out the max range for the nodes that was used for this run
-   printf("The max distance for the nodes is %lf\n", MAX_RANGE);
+#ifdef __TEST_QUE   
+      Node *quen;
+   
+      addNode(&list_node[0]);
+      addNode(&list_node[1]);
+      addNode(&list_node[2]);
+      addNode(&list_node[3]);
 
-   //PrintNeighborList("neighbor.dat");
+      quen = removeNode();
 
-
-#ifdef _TEST_STACK_
-#warning Testing the stack code to see if it works
-   Node *p;
-
-   push(&list_node[0]);
-   push(&list_node[1]);
-   push(&list_node[2]);
-   push(&list_node[3]);
-
-   p = pop();   
-
-   printf("Pop %lf\n", p->x);
-   p = peak();
-   printf("Peak %lf\n", p->x );
-   printf("%lf\n",list_node[0].x);
-   printf("%lf\n",list_node[1].x);
-   printf("%lf\n",list_node[2].x);
-   printf("%lf\n",list_node[3].x);
-#endif
-
-#ifdef __TEST_QUE__
-   Node *quen;
-
-   addNode(&list_node[0]);
-   addNode(&list_node[1]);
-   addNode(&list_node[2]);
-   addNode(&list_node[3]);
-
-   quen = removeNode();
-
-   printf("removed from q %lu\n", quen->index);
-   printf("at the next node to remove %lu\n", queque[que_start]->index);
-   printf("at the end node to remove %lu\n", queque[que_end-1]->index);
+      printf("removed from q %lu\n", quen->index);
+      printf("at the next node to remove %lu\n", queque[que_start]->index);
+      printf("at the end node to remove %lu\n", queque[que_end-1]->index);
  
-   quen = removeNode();
+      quen = removeNode();
 #endif 
 
-   end = clock();
+      end = clock();
 
-   time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+      time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
 
-   printf("The code took %lf seconds to run.\n", time_spent);
+      printf("The code took %lf seconds to run.\n", time_spent);
 /////Nothing below this line./////////////////////////////////////////////////
 
    //start cleaning the memory
